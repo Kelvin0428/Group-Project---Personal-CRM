@@ -1,7 +1,11 @@
 const mongoose = require('mongoose')
 const PersonalUser = mongoose.model('PersonalUser')
 const Friend = mongoose.model('Friend')
+const Infor = mongoose.model('PersonalInfo')
 const Connection = mongoose.model('Connection')
+
+
+
 const getAllConnectionsTest = async (req, res) => { 
 	try {
 		const Puser = await PersonalUser.find().lean()
@@ -23,4 +27,23 @@ const getAllConnectionsTest = async (req, res) => {
 		console.log(err)
 	}
 }
-module.exports = {getAllConnectionsTest}
+
+
+const getPersonInfor = async (req,res) => {
+    try{
+        const user = await PersonalUser.find().lean()
+        const newInfor = new Infor({
+            nameFamily: "unimelb",
+            nameGiven: "student"
+        })
+        user[0].personalInfor = newInfor 
+        const infor = user[0].personalInfor
+        res.send(infor)
+        console.log(user)
+    }catch(err){
+        res.send(err)
+        console.log(err)
+    }
+}
+
+module.exports = {getAllConnectionsTest,getPersonInfor}
