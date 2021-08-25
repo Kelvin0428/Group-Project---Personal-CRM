@@ -21,10 +21,14 @@ CRMRouter.post('/login', async (req, res, next) => {
             console.log(message);
             // if Personallogin authentication has error
             if(errors || !Personaluser){
-                return next(new Error('An Error occurred'));
+                return res.status(400).send(message)
             }
+
             //login to the user
-            req.login(Personaluser, { session : false }, async () => {
+            req.login(Personaluser, { session : false }, async (error) => {
+                if(error){
+                    return next(error);
+                }
                 const body = { user_name : Personaluser.userName };
                 //sign the token and allow it to expire in 6 hours
                 const token = jwt.sign({ body },process.env.PASSPORT_KEY, {expiresIn: "6h"});
@@ -36,7 +40,38 @@ CRMRouter.post('/login', async (req, res, next) => {
             return next(error);
         }
     })(req, res, next);
-    
+});
+
+//handling login requests
+CRMRouter.post('/signup', async (req, res, next) => {
+    //utilises the Personallogin authentication method for personal users to log in 
+    passport.authenticate('signup', async (errors, Personaluser, message) => {
+        try {
+            // log information on authentication status -- 'login successful'
+            console.log(message);
+            // if Personallogin authentication has error
+            if(errors || !Personaluser){
+                return res.status(400).send(message)
+            }
+            //return with successful message and FE can redirect to login page
+            return res.status(200).send("Sign Up Successful")
+
+         /*   // directly login to the user
+            req.login(Personaluser, { session : false }, async (error) => {
+                if(error){
+                    return next(error);
+                }
+                const body = { user_name : Personaluser.userName };
+                //sign the token and allow it to expire in 6 hours
+                const token = jwt.sign({ body },process.env.PASSPORT_KEY, {expiresIn: "6h"});
+                //set the cookie
+                res.cookie('jwt',token, { httpOnly: false, sameSite: false, secure: true, domain:"http://localhost:8000"});
+                return res.status(200).json(token);
+            });*/
+        } catch (error) {
+            return next(error);
+        }
+    })(req, res, next);
 });
 
 CRMRouter.get('/', (req, res) => CRMController.getAllConnectionsTest(req,res))

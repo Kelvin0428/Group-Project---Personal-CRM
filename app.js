@@ -1,4 +1,4 @@
-//code inspiration drawn from applications developed from Web information Technologies 2021 sem 1
+
 // require mongodb connectiong
 require('./models/index.js')
 
