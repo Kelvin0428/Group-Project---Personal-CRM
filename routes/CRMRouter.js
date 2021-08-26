@@ -29,7 +29,7 @@ CRMRouter.post('/login', async (req, res, next) => {
                 if(error){
                     return next(error);
                 }
-                const body = { user_name : Personaluser.userName };
+                const body = { _id : Personaluser.userName };
                 //sign the token and allow it to expire in 6 hours
                 const token = jwt.sign({ body },process.env.PASSPORT_KEY, {expiresIn: "6h"});
                 //set the cookie

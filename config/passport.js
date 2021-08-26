@@ -20,18 +20,34 @@ module.exports = function(passport) {
         jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(), 
         secretOrKey   : process.env.PASSPORT_KEY,
         passReqToCallback: true
-    }, (req, jwt_payload, done) => {
-        //find the user in the database
-        PersonalUser.findOne({'email':jwt_payload.body._id}, (err, user) => {
-            //error encountered with findOne
-            if(err && !user){
-                return done(err, false);
+    }, async(req, jwt_payload, done) => {
+        try{
+            let allow = 0;
+            //find the user in the database
+            await PersonalUser.findOne({'userName':jwt_payload.body._id}, (err, user) => {
+                //error encountered with findOne
+                console.log(user)
+                if(err || !user){
+                    allow = 1;
+                }
+                else{
+                    // user found 
+                    return done(null, user);
+                } 
+            });
+            if(allow == 1){
+                await PersonalUser.findOne({'email':jwt_payload.body._id},(err,user)=> {
+                    if(err|| !user){
+                        return done(err, false, {message: "authentication failed"});
+                    }else{
+                        return done(null,user);
+                    }
+                });
             }
-            // user found 
-            if(user){
-                return done(null, user);
-            }
-        });
+        }
+        catch (error){
+            return done(error);
+        }
     }));
 
 
