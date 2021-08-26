@@ -29,21 +29,35 @@ const getAllConnectionsTest = async (req, res) => {
 }
 
 
-const getPersonInfor = async (req,res) => {
+const getPersonInfo = async (req,res) => {
     try{
-        const user = await PersonalUser.find().lean()
-        const newInfor = new Infor({
-            nameFamily: "unimelb",
-            nameGiven: "student"
-        })
-        user[0].personalInfor = newInfor 
-        const infor = user[0].personalInfor
-        res.send(infor)
-        console.log(user)
+        const user = await PersonalUser.findOne({"userName":"student"}).lean()
+        res.send(user.personalInfo)
+        console.log(user.personalInfo)
     }catch(err){
         res.send(err)
         console.log(err)
     }
 }
 
-module.exports = {getAllConnectionsTest,getPersonInfor}
+const editPersonalInfo = async (req,res) =>{
+    try{
+        let user = await PersonalUser.findOne({"userName":"student"})
+        console.log(user)
+        const newInfo = req.body 
+        for(const property in newInfo){
+            if(newInfo[property]){
+                user.personalInfo[property] = newInfo[property]
+            }
+        }
+        console.log(user)
+        await user.save()
+        //console.log(newInfo)
+        res.send(user)
+    }catch(err){
+        res.send(err)
+        console.log(err)
+    }
+}
+
+module.exports = {getAllConnectionsTest,getPersonInfo,editPersonalInfo}
