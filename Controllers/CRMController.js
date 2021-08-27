@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const PersonalUser = mongoose.model('PersonalUser')
 const Friend = mongoose.model('Friend')
-const Infor = mongoose.model('PersonalInfo')
+const Usernis = mongoose.model('Usernis')
 const Connection = mongoose.model('Connection')
 
 
@@ -60,4 +60,31 @@ const editPersonalInfo = async (req,res) =>{
     }
 }
 
-module.exports = {getAllConnectionsTest,getPersonInfo,editPersonalInfo}
+const viewConnections = async (req,res) => {
+    try{
+        const user = await PersonalUser.findOne({"userName":"student"})
+        const connection = user.connections
+        res.send(connection)
+        console.log(connection)
+    }catch(err){
+        res.send(err)
+    }
+
+}
+
+
+const createUsernis = async (req,res) => {
+    try{
+        let usernis = new Usernis({
+            personalInfo:req.body
+        })
+        usernis.save()
+        console.log(usernis)
+        res.send(usernis)
+    }catch(err){
+        res.send(err)
+    }
+}
+
+
+module.exports = {getAllConnectionsTest,getPersonInfo,editPersonalInfo,viewConnections,createUsernis}

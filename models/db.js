@@ -99,6 +99,12 @@ const businessUserSchema = new mongoose.Schema({
     tasks:[{ type: Schema.Types.ObjectId, ref: 'Task' }]
 })
 
+const usernisSchema = new mongoose.Schema({
+    _id:{type:mongoose.Types.ObjectId,auto:true},
+    personalInfo: infoSchema
+})
+
+
 // compile the Schemas into Models
 const PersonalUser = mongoose.model('PersonalUser', personalUserSchema)
 const BusinessUser = mongoose.model('BusinessUser', businessUserSchema)
@@ -110,4 +116,5 @@ const Connection = mongoose.model('Connection',connectionSchema)
 const Friend = mongoose.model('Friend',friendSchema)
 const PersonalInfo = mongoose.model('PersonalInfo',infoSchema)
 const Tag = mongoose.model('Tag',tagSchema)
-module.exports = {PersonalUser,BusinessUser,Circle,CreatedUser,Event,Task,Connection,Friend,PersonalInfo,Tag}; // make model available to other files
+const Usernis = mongoose.model("Usernis",usernisSchema,"usernis")
+module.exports = {PersonalUser,BusinessUser,Circle,CreatedUser,Event,Task,Connection,Friend,PersonalInfo,Tag,Usernis}; // make model available to other files
