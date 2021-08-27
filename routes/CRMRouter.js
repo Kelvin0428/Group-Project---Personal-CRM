@@ -74,6 +74,6 @@ CRMRouter.post('/signup', async (req, res, next) => {
     })(req, res, next);
 });
 
-CRMRouter.get('/', (req, res) => CRMController.getAllConnectionsTest(req,res))
+CRMRouter.get('/secure', passport.authenticate('jwt', { session: false }), (req, res) => CRMController.getAllConnectionsTest(req,res))
 
 module.exports = CRMRouter
