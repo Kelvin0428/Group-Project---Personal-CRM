@@ -31,7 +31,7 @@ const getAllConnectionsTest = async (req, res) => {
 
 const getPersonInfo = async (req,res) => {
     try{
-        const user = await PersonalUser.findOne({"userName":"student"}).lean()
+        const user = await PersonalUser.findOne({userName:req.user.userName}).lean()
         res.send(user.personalInfo)
         console.log(user.personalInfo)
     }catch(err){
@@ -42,8 +42,7 @@ const getPersonInfo = async (req,res) => {
 
 const editPersonalInfo = async (req,res) =>{
     try{
-        let user = await PersonalUser.findOne({"userName":"student"})
-        console.log(user)
+        let user = await PersonalUser.findOne({userName:req.user.userName})
         const newInfo = req.body 
         for(const property in newInfo){
             if(newInfo[property]){
@@ -52,7 +51,6 @@ const editPersonalInfo = async (req,res) =>{
         }
         console.log(user)
         await user.save()
-        //console.log(newInfo)
         res.send(user)
     }catch(err){
         res.send(err)
@@ -62,7 +60,7 @@ const editPersonalInfo = async (req,res) =>{
 
 const viewConnections = async (req,res) => {
     try{
-        const user = await PersonalUser.findOne({"userName":"student"})
+        const user = await PersonalUser.findOne({userName:req.user.userName})
         const connection = user.connections
         res.send(connection)
         console.log(connection)
@@ -75,12 +73,20 @@ const viewConnections = async (req,res) => {
 
 const createUsernis = async (req,res) => {
     try{
-        let usernis = new Usernis({
+        let usernis = await new Usernis({
             personalInfo:req.body
         })
+        let people = await new Friend({
+            id:usernis._id,
+            tags:[],
+            accountType: 'notInSystem'
+        })
+        let user = await PersonalUser.findOne({userName:req.userName})
         usernis.save()
-        console.log(usernis)
-        res.send(usernis)
+        user.connections.cnis.push(people)
+        user.save()
+        console.log(user)
+        res.send(user)
     }catch(err){
         res.send(err)
     }
