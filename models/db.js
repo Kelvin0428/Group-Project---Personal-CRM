@@ -1,5 +1,6 @@
 //for info on database structure, visit the uml model on Confluence
 const mongoose = require("mongoose")
+const bcrypt   = require('bcrypt-nodejs')
 const Schema = mongoose.Schema
 //tag schema for creating tags for different connections
 const tagSchema = new mongoose.Schema({
@@ -98,6 +99,23 @@ const businessUserSchema = new mongoose.Schema({
     events:[{ type: Schema.Types.ObjectId, ref: 'Event' }],
     tasks:[{ type: Schema.Types.ObjectId, ref: 'Task' }]
 })
+//hash password to provide security
+personalUserSchema.methods.hashPassword = function(password) {
+    return bcrypt.hashSync(password, bcrypt.genSaltSync(10), null);
+};
+
+//hash password to compare and validate
+personalUserSchema.methods.validPassword = function(password) {
+    return bcrypt.compareSync(password, this.password);
+};
+
+//same but for business users
+businessUserSchema.methods.hashPassword = function(password) {
+    return bcrypt.hashSync(password, bcrypt.genSaltSync(10), null);
+};
+businessUserSchema.methods.validPassword = function(password) {
+    return bcrypt.compareSync(password, this.password);
+};
 
 // compile the Schemas into Models
 const PersonalUser = mongoose.model('PersonalUser', personalUserSchema)
