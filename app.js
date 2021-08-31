@@ -37,8 +37,9 @@ app.use(passport.session());
 
 //set up CRM routes
 const CRMRouter = require('./routes/CRMRouter.js')
+const AuthenRouter = require('./routes/AuthenRouter.js')
 app.use('/', CRMRouter);
-
+app.use('/authenticate',AuthenRouter)
 
 app.all('*', (req, res) => {res.send('error')})
 
