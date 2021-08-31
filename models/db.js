@@ -79,7 +79,7 @@ const createdUserSchema = new mongoose.Schema({
 // define the User schema
 const personalUserSchema = new mongoose.Schema({
     email: {type: String, required: true, unique: true},
-    userName: {type: String, required: true},
+    userName: {type: String, required: true, unique:true},
     password: {type: String, required: true},
     personalInfo: infoSchema,
     connections: connectionSchema,
