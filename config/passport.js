@@ -94,8 +94,7 @@ module.exports = function(passport) {
             //find if the signup username exists in system, if it doesn't, allow checks for email
             await PersonalUser.findOne({'userName': userName}, function(err, existingUser) {
                 if (err) {
-                    console.log(err);
-                    return done(err);
+                    return done(err, {message: 'Unexpected Error with findOne function'});
                 }
                 if (existingUser) {
                     console.log("existing");

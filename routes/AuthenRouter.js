@@ -18,7 +18,7 @@ AuthenRouter.post('/login', async (req, res, next) => {
             console.log(message);
             // if Personallogin authentication has error
             if(errors || !Personaluser){
-                return res.status(400).send(message)
+                return res.status(200).send(message)
             }
 
             //login to the user
@@ -48,7 +48,7 @@ AuthenRouter.post('/signup', async (req, res, next) => {
             console.log(message);
             // if Personallogin authentication has error
             if(errors || !Personaluser){
-                return res.status(400).send(message)
+                return res.status(200).send(message)
             }
             //return with successful message and FE can redirect to login page
             return res.status(200).send("Sign Up Successful")
