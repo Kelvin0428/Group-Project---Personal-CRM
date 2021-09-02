@@ -1,4 +1,4 @@
-
+//code inspiration drawn from applications developed and adapted from workshop programs from Web information Technologies 2021 sem 1
 // require mongodb connectiong
 require('./models/index.js')
 
@@ -23,7 +23,7 @@ app.use(express.static('public'))
 
 app.use(cors({
   credentials: true, 
-  origin: "http://localhost:8000" 
+  origin: "http://localhost:3000" 
 }));
 
 app.use(session({ secret: process.env.PASSPORT_KEY,
@@ -41,10 +41,10 @@ const AuthenRouter = require('./routes/AuthenRouter.js')
 app.use('/', CRMRouter);
 app.use('/authenticate',AuthenRouter)
 
-app.all('*', (req, res) => {res.send('error')})
+app.all('*', (req, res) => {res.send('Invalid Route')})
 
 
 // listening on Port address if active, or else on local host 8000
 app.listen(process.env.PORT || 8000, () => {
-  console.log("FoodBuddy app is listening ...")
+  console.log("Connected")
 })

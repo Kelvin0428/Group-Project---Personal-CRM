@@ -1,10 +1,8 @@
 // requiring express for implementation
 const express = require('express')
-const jwt = require('jsonwebtoken');
 const passport = require('passport');
 require('../config/passport')(passport);
 const CRMController = require('../controllers/CRMController.js')
-// place holder for processing routes through controller
 
 const CRMRouter = express.Router()
 CRMRouter.get('/Pinfo',passport.authenticate('jwt',{session: false}), (req,res) =>CRMController.getPersonInfo(req,res))
