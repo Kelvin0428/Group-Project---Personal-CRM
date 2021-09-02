@@ -46,5 +46,5 @@ app.all('*', (req, res) => {res.send('error')})
 
 // listening on Port address if active, or else on local host 8000
 app.listen(process.env.PORT || 8000, () => {
-  console.log("FoodBuddy app is listening ...")
+  console.log("PersonalCRM is listening ...")
 })
