@@ -22,20 +22,19 @@ module.exports = function(passport) {
         passReqToCallback: true
     }, async(req, jwt_payload, done) => {
         try{
-            let allow = 0;
+            let checkEmail = 0;
             //find the user in the database
             await PersonalUser.findOne({'userName':jwt_payload.body._id}, (err, user) => {
                 //error encountered with findOne
-                console.log(user)
                 if(err || !user){
-                    allow = 1;
+                    checkEmail = 1;
                 }
                 else{
                     // user found 
                     return done(null, user);
                 } 
             });
-            if(allow == 1){
+            if(checkEmail == 1){
                 await PersonalUser.findOne({'email':jwt_payload.body._id},(err,user)=> {
                     if(err|| !user){
                         return done(err, false, {message: "authentication failed"});
@@ -57,18 +56,16 @@ module.exports = function(passport) {
         passwordField : 'password'
     }, async (userName, password, done) => {
         try {
-            let tok = 0;
-            //Find user with the username
-            console.log(userName);
+            let checkEmail = 0;
             await PersonalUser.findOne({ 'userName' :  userName }, function(err, user) {
                 if (user && (user.validPassword(password))){
                     return done(null, user, {message: 'Login successful'});
                 }else{
-                    tok = 1;
+                    checkEmail = 1;
                 }
             });
             //allow for login using email
-            if(tok == 1){
+            if(checkEmail == 1){
             await PersonalUser.findOne({'email': userName}, function(err, user){
                 if(user && (user.validPassword(password))){
                     return done(null,user,{message:'Login successful'})
@@ -90,7 +87,6 @@ module.exports = function(passport) {
     }, async (req, userName, password, done) =>{
         try {
             let allow = 0
-            console.log('a');
             //find if the signup username exists in system, if it doesn't, allow checks for email
             await PersonalUser.findOne({'userName': userName}, function(err, existingUser) {
                 if (err) {
@@ -136,5 +132,4 @@ module.exports = function(passport) {
             return done(error);
         }
     }));    
-    
 };

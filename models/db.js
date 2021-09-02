@@ -108,7 +108,7 @@ personalUserSchema.methods.hashPassword = function(password) {
 personalUserSchema.methods.validPassword = function(password) {
     return bcrypt.compareSync(password, this.password);
 };
-
+/*
 //same but for business users
 businessUserSchema.methods.hashPassword = function(password) {
     return bcrypt.hashSync(password, bcrypt.genSaltSync(10), null);
@@ -116,6 +116,7 @@ businessUserSchema.methods.hashPassword = function(password) {
 businessUserSchema.methods.validPassword = function(password) {
     return bcrypt.compareSync(password, this.password);
 };
+*/
 
 const usernisSchema = new mongoose.Schema({
     _id:{type:mongoose.Types.ObjectId,auto:true},
