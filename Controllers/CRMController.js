@@ -32,10 +32,8 @@ const getAllConnectionsTest = async (req, res) => {
 const getPersonInfo = async (req,res) => {
     try{
         const user = await PersonalUser.findOne({userName:req.user.userName}).lean()
-        res.send(user.personalInfo)
-        console.log(user.personalInfo)
+        res.json(user.personalInfo)
     }catch(err){
-        res.send(err)
         console.log(err)
     }
 }
@@ -49,11 +47,9 @@ const editPersonalInfo = async (req,res) =>{
                 user.personalInfo[property] = newInfo[property]
             }
         }
-        console.log(user)
         await user.save()
-        res.send(user)
+        res.json(user.personalInfo)
     }catch(err){
-        res.send(err)
         console.log(err)
     }
 }
@@ -62,10 +58,9 @@ const viewConnections = async (req,res) => {
     try{
         const user = await PersonalUser.findOne({userName:req.user.userName})
         const connection = user.connections
-        res.send(connection)
-        console.log(connection)
+        res.json(connection)
     }catch(err){
-        res.send(err)
+        console.log(err)
     }
 
 }
@@ -85,10 +80,9 @@ const createUsernis = async (req,res) => {
         usernis.save()
         user.connections.cnis.push(people)
         user.save()
-        console.log(user)
-        res.send(user)
+        res.json(user)
     }catch(err){
-        res.send(err)
+        console.log(err)
     }
 }
 
