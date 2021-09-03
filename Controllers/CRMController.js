@@ -5,30 +5,7 @@ const Usernis = mongoose.model('Usernis')
 const Connection = mongoose.model('Connection')
 
 
-
-const getAllConnectionsTest = async (req, res) => { 
-	try {
-		const Puser = await PersonalUser.find().lean()
-        const newFriend = new Friend({
-			id: Puser[0]._id,
-            accountType: 'inSystem'
-		})
-        
-        const newConnection = new Connection({
-            cis:[]
-        })
-        await newConnection.cis.push(newFriend)
-        Puser[0].connections = newConnection
-		console.log(Puser[0])
-        console.log(Puser[0].connections)
-        console.log(Puser[0].connections.cis[0].accountType)
-		res.send(Puser)	
-	} catch (err) {
-		console.log(err)
-	}
-}
-
-
+// get user's personal information
 const getPersonInfo = async (req,res) => {
     try{
         const user = await PersonalUser.findOne({userName:req.user.userName}).lean()
@@ -38,10 +15,22 @@ const getPersonInfo = async (req,res) => {
     }
 }
 
+// get user name for front end access
+const getIdentity = async (req,res) =>{
+    try{
+        res.json(req.user.userName)
+    }catch(err){
+        console.log(err)
+    }
+
+}
+
+// change personal information 
 const editPersonalInfo = async (req,res) =>{
     try{
         let user = await PersonalUser.findOne({userName:req.user.userName})
         const newInfo = req.body 
+        // only change information that has been modified
         for(const property in newInfo){
             if(newInfo[property]){
                 user.personalInfo[property] = newInfo[property]
@@ -54,6 +43,7 @@ const editPersonalInfo = async (req,res) =>{
     }
 }
 
+// get the connection
 const viewConnections = async (req,res) => {
     try{
         const user = await PersonalUser.findOne({userName:req.user.userName})
@@ -65,7 +55,7 @@ const viewConnections = async (req,res) => {
 
 }
 
-
+// create a user whose not in system and add to connections
 const createUsernis = async (req,res) => {
     try{
         let usernis = await new Usernis({
@@ -76,7 +66,7 @@ const createUsernis = async (req,res) => {
             tags:[],
             accountType: 'notInSystem'
         })
-        let user = await PersonalUser.findOne({userName:req.userName})
+        let user = await PersonalUser.findOne({userName:req.user.userName})
         usernis.save()
         user.connections.cnis.push(people)
         user.save()
@@ -87,4 +77,4 @@ const createUsernis = async (req,res) => {
 }
 
 
-module.exports = {getAllConnectionsTest,getPersonInfo,editPersonalInfo,viewConnections,createUsernis}
+module.exports = {getPersonInfo,editPersonalInfo,viewConnections,createUsernis,getIdentity}
