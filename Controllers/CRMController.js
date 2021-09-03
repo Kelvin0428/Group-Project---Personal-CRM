@@ -5,86 +5,78 @@ const Usernis = mongoose.model('Usernis')
 const Connection = mongoose.model('Connection')
 
 
-
-const getAllConnectionsTest = async (req, res) => { 
-	try {
-		const Puser = await PersonalUser.find().lean()
-        const newFriend = new Friend({
-			id: Puser[0]._id,
-            accountType: 'inSystem'
-		})
-        
-        const newConnection = new Connection({
-            cis:[]
-        })
-        await newConnection.cis.push(newFriend)
-        Puser[0].connections = newConnection
-		console.log(Puser[0])
-        console.log(Puser[0].connections)
-        console.log(Puser[0].connections.cis[0].accountType)
-		res.send(Puser)	
-	} catch (err) {
-		console.log(err)
-	}
-}
-
-
+// get user's personal information
 const getPersonInfo = async (req,res) => {
     try{
-        const user = await PersonalUser.findOne({"userName":"student"}).lean()
-        res.send(user.personalInfo)
+        // find the user
+        const user = await PersonalUser.findOne({userName:req.user.userName}).lean()
+        res.json(user.personalInfo)
         console.log(user.personalInfo)
     }catch(err){
-        res.send(err)
         console.log(err)
     }
 }
 
+// get user name for front end access
+const getIdentity = async (req,res) =>{
+    try{
+        res.json(req.user.userName)
+    }catch(err){
+        console.log(err)
+    }
+
+}
+
+// change personal information 
 const editPersonalInfo = async (req,res) =>{
     try{
-        let user = await PersonalUser.findOne({"userName":"student"})
-        console.log(user)
+        let user = await PersonalUser.findOne({userName:req.user.userName})
         const newInfo = req.body 
+        // only change information that has been modified
         for(const property in newInfo){
             if(newInfo[property]){
                 user.personalInfo[property] = newInfo[property]
             }
         }
-        console.log(user)
         await user.save()
-        //console.log(newInfo)
-        res.send(user)
+        res.json(user.personalInfo)
     }catch(err){
-        res.send(err)
         console.log(err)
     }
 }
 
+// get the connection
 const viewConnections = async (req,res) => {
     try{
-        const user = await PersonalUser.findOne({"userName":"student"})
+        const user = await PersonalUser.findOne({userName:req.user.userName})
         const connection = user.connections
-        res.send(connection)
-        console.log(connection)
+        res.json(connection)
     }catch(err){
         res.send(err)
     }
 
 }
 
-
+// create a user whose not in system and add to connections
 const createUsernis = async (req,res) => {
     try{
-        let usernis = new Usernis({
+        let usernis = await new Usernis({
             personalInfo:req.body
         })
+        let people = await new Friend({
+            id:usernis._id,
+            tags:[],
+            accountType: 'notInSystem'
+        })
+        let user = await PersonalUser.findOne({userName:req.user.userName})
         usernis.save()
-        console.log(usernis)
-        res.send(usernis)
+        user.connections.cnis.push(people)
+        user.save()
+        res.json(user)
     }catch(err){
         res.send(err)
     }
 }
 
 
-module.exports = {getAllConnectionsTest,getPersonInfo,editPersonalInfo,viewConnections,createUsernis}
+module.exports = {getPersonInfo,editPersonalInfo,viewConnections,createUsernis,getIdentity}
