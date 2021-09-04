@@ -120,11 +120,6 @@ module.exports = function(passport) {
                         // hash password to provide security
                         newUser.password = newUser.hashPassword(password);
                         newUser.email = req.body.email;
-                        var newPInfo = new PersonalInfo();
-                        newPInfo.nameFamily = req.body.nameFamily;
-                        newPInfo.nameGiven = req.body.nameGiven;
-                        newUser.personalInfo = newPInfo;
-                        console.log(newUser);
                         newUser.save(function(err) {
                             if (err)
                                 throw err;
