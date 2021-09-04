@@ -69,9 +69,9 @@ const createUsernis = async (req,res) => {
             accountType: 'notInSystem'
         })
         let user = await PersonalUser.findOne({userName:req.user.userName})
-        usernis.save()
+        await usernis.save()
         user.connections.cnis.push(people)
-        user.save()
+        await user.save()
         res.json(user)
     }catch(err){
         res.send(err)
