@@ -8,7 +8,7 @@ const LocalStrategy = require('passport-local').Strategy;
 //importing data model for perosnal and business user for logins
 const { PersonalUser } = require('../models/db');
 const {BusinessUser} = require ('../models/db');
-
+const {PersonalInfo} = require ('../models/db');
 //JWT set up for authentication
 const passportJWT = require("passport-jwt");
 const JwtStrategy = passportJWT.Strategy;
@@ -91,7 +91,7 @@ module.exports = function(passport) {
             await PersonalUser.findOne({'userName': userName}, function(err, existingUser) {
                 if (err) {
                     console.log(err);
-                    return done(err);
+                    return done(err,null,{message:'unexpected issue  with Database Query'});
                 }
                 if (existingUser) {
                     console.log("existing");

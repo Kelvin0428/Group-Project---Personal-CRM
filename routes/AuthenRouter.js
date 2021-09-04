@@ -15,11 +15,12 @@ AuthenRouter.post('/login', async (req, res, next) => {
     passport.authenticate('Personallogin', async (errors, Personaluser, message) => {
         try {
             // log information on authentication status -- 'login successful'
-            console.log(message);
+
             // if Personallogin authentication has error
             if(errors || !Personaluser){
-                return res.status(400).send(message)
+                return res.status(200).send(message)
             }
+            console.log(Personaluser);
             //login to the user
             req.login(Personaluser, { session : false }, async (error) => {
                 if(error){
@@ -30,7 +31,9 @@ AuthenRouter.post('/login', async (req, res, next) => {
                 const token = jwt.sign({ body },process.env.PASSPORT_KEY, {expiresIn: "6h"});
                 //set the cookie
                 res.cookie('jwt',token, { httpOnly: false, sameSite: false, secure: true, domain:"http://localhost:8000"});
-                return res.status(200).json(token);
+                //set output as token and username
+                const output = {token:token, userName:Personaluser.userName};
+                return res.status(200).json(output);
             });
         } catch (error) {
             return next(error);
@@ -47,7 +50,7 @@ AuthenRouter.post('/signup', async (req, res, next) => {
             console.log(message);
             // if Personallogin authentication has error
             if(errors || !Personaluser){
-                return res.status(400).send(message)
+                return res.status(200).send(message)
             }
             //return with successful message and FE can redirect to login page
             return res.status(200).send("Sign Up Successful")

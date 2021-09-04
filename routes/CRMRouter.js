@@ -2,7 +2,7 @@
 const express = require('express')
 const passport = require('passport');
 require('../config/passport')(passport);
-const CRMController = require('../controllers/CRMController.js')
+const CRMController = require('../Controllers/CRMController.js')
 
 const CRMRouter = express.Router()
 CRMRouter.get('/Pinfo',passport.authenticate('jwt',{session: false}), (req,res) =>CRMController.getPersonInfo(req,res))
