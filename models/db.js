@@ -41,11 +41,12 @@ connectionSchema = new mongoose.Schema({
 
 //schema for storing tasks
 const taskSchema = new mongoose.Schema({
+    _id:{type:mongoose.Types.ObjectId,auto:true},
     //what is the task name
     taskName: {type: String, required:true},
     //task objective
     description:{type:String},
-    createdDate: {type: Date, required: true},
+    createdDate: {type: Date, required: true,default:Date.now},
     endDate: {type: Date},
     status: {type: String, enum:['draft','incomplete','completed']}
 })
@@ -84,7 +85,7 @@ const personalUserSchema = new mongoose.Schema({
     password: {type: String, required: true},
     personalInfo: infoSchema,
     connections: connectionSchema,
-    tasks: [{ type: Schema.Types.ObjectId, ref: 'Task' }],
+    tasks: [taskSchema],
     events: [{ type: Schema.Types.ObjectId, ref: 'Event' }],
     circles: [{ type: Schema.Types.ObjectId, ref: 'Circle' }]
 })
