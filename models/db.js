@@ -86,7 +86,11 @@ const personalUserSchema = new mongoose.Schema({
     connections: connectionSchema,
     tasks: [{ type: Schema.Types.ObjectId, ref: 'Task' }],
     events: [{ type: Schema.Types.ObjectId, ref: 'Event' }],
-    circles: [{ type: Schema.Types.ObjectId, ref: 'Circle' }]
+    circles: [{ type: Schema.Types.ObjectId, ref: 'Circle' }],
+    //active to decide if the account is verified and active
+    active: {type: Boolean},
+    //used to check if email verified is correct
+    secretID: {type:String}
 })
 
 //define the business user schema
@@ -99,6 +103,8 @@ const businessUserSchema = new mongoose.Schema({
     events:[{ type: Schema.Types.ObjectId, ref: 'Event' }],
     tasks:[{ type: Schema.Types.ObjectId, ref: 'Task' }]
 })
+
+
 //hash password to provide security
 personalUserSchema.methods.hashPassword = function(password) {
     return bcrypt.hashSync(password, bcrypt.genSaltSync(10), null);

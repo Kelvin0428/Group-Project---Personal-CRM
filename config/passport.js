@@ -13,7 +13,7 @@ const {PersonalInfo} = require ('../models/db');
 const passportJWT = require("passport-jwt");
 const JwtStrategy = passportJWT.Strategy;
 const ExtractJwt = passportJWT.ExtractJwt;
-
+var crypto = require("crypto");
 module.exports = function(passport) {
     passport.use('jwt', new JwtStrategy({
         //allows for always extracting the token from the request header
@@ -29,6 +29,10 @@ module.exports = function(passport) {
                 if(err || !user){
                     checkEmail = 1;
                 }
+                //authenticated only if account is already active
+                else if (user.active != true){
+                    return done(err, false, {message:"account not activated"});
+                }
                 else{
                     // user found 
                     return done(null, user);
@@ -38,6 +42,8 @@ module.exports = function(passport) {
                 await PersonalUser.findOne({'email':jwt_payload.body._id},(err,user)=> {
                     if(err|| !user){
                         return done(err, false, {message: "authentication failed"});
+                    } else if (user.active != true){
+                        return done(err, false, {message:"account not activated"});
                     }else{
                         return done(null,user);
                     }
@@ -120,6 +126,10 @@ module.exports = function(passport) {
                         // hash password to provide security
                         newUser.password = newUser.hashPassword(password);
                         newUser.email = req.body.email;
+                        //set initial account activate to false
+                        newUser.active = false;
+                        //randomise the secretid
+                        newUser.secretID = crypto.randomBytes(16).toString('hex');
                         newUser.save(function(err) {
                             if (err)
                                 throw err;

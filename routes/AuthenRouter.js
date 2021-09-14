@@ -4,6 +4,8 @@ const express = require('express')
 //requiring authroisation modules
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
+var nodemailer = require('nodemailer');
+const AuthenController = require('../Controllers/AuthenController.js')
 require('../config/passport')(passport);
 //code inspiration drawn from applications developed from Web information Technologies 2021 sem 1
 //setting up controller and router
@@ -41,6 +43,8 @@ AuthenRouter.post('/login', async (req, res, next) => {
     })(req, res, next);
 });
 
+
+
 //handling login requests
 AuthenRouter.post('/signup', async (req, res, next) => {
     //utilises the Personallogin authentication method for personal users to log in 
@@ -48,6 +52,32 @@ AuthenRouter.post('/signup', async (req, res, next) => {
         try {
             // log information on authentication status -- 'login successful'
             console.log(message);
+
+            //set up node mailer transporter, allow for login in the sender email
+            var transporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth:{
+                    user: 'polarcirclecrm@gmail.com',
+                    pass: 'paralleloflatitude'
+                }
+            });
+
+            //set up mail details, the recipient and content
+            var mailDetails = {
+                from: 'polarcirclecrm@gmail.com',
+                to: Personaluser.email,
+                subject: 'Account Verification',
+                html: "<h1>Welcome to Polar Circle</h1> "
+            }
+
+            //send the mail
+            transporter.sendMail(mailDetails, function(error, info){
+                if(error){
+                    console.log(error);
+                }else{
+                    console.log('Email sent:' + info.response)
+                }
+            })
             // if Personallogin authentication has error
             if(errors || !Personaluser){
                 return res.status(200).send(message)
