@@ -29,10 +29,6 @@ module.exports = function(passport) {
                 if(err || !user){
                     checkEmail = 1;
                 }
-                //authenticated only if account is already active
-                else if (user.active != true){
-                    return done(err, false, {message:"account not activated"});
-                }
                 else{
                     // user found 
                     return done(null, user);
@@ -42,9 +38,7 @@ module.exports = function(passport) {
                 await PersonalUser.findOne({'email':jwt_payload.body._id},(err,user)=> {
                     if(err|| !user){
                         return done(err, false, {message: "authentication failed"});
-                    } else if (user.active != true){
-                        return done(err, false, {message:"account not activated"});
-                    }else{
+                    } else{
                         return done(null,user);
                     }
                 });
@@ -64,8 +58,10 @@ module.exports = function(passport) {
         try {
             let checkEmail = 0;
             await PersonalUser.findOne({ 'userName' :  userName }, function(err, user) {
-                if (user && (user.validPassword(password))){
+                if (user && (user.validPassword(password)) && user.active == true){
                     return done(null, user, {message: 'Login successful'});
+                }else if (user.active == false){
+                    return done(null,false, {message: 'account not verified'})
                 }else{
                     checkEmail = 1;
                 }
@@ -75,6 +71,8 @@ module.exports = function(passport) {
             await PersonalUser.findOne({'email': userName}, function(err, user){
                 if(user && (user.validPassword(password))){
                     return done(null,user,{message:'Login successful'})
+                }else if (user.active == false){
+                    return done(null,false, {message: 'account not verified'})
                 }else{
                     return done(null, false, {message: 'User not found or info incorrect'});
                 }
