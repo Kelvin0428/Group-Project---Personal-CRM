@@ -18,5 +18,11 @@ CRMRouter.post('/task/edit/:_id',(req,res)=>CRMController.editTask(req,res))
 CRMRouter.post('/task/remove/:_id',(req,res)=>CRMController.removeTask(req,res))
 CRMRouter.get('/task/complete/:_id',(req,res)=>CRMController.completeTask(req,res))
 
+CRMRouter.post('/createCircle',(req,res)=>CRMController.createCircle(req,res))
+CRMRouter.get('/circles',(req,res)=>CRMController.viewCircles(req,res))
+
+CRMRouter.get('/circle/:id',(req,res)=>CRMController.oneCircle(req,res))
+
+CRMRouter.post('/deleteCircle',(req,res)=>CRMController.deleteCircle(req,res))
 
 module.exports = CRMRouter

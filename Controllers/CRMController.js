@@ -1,4 +1,6 @@
 const mongoose = require('mongoose')
+const { BusinessUser, Circle } = require('../models/db')
+const { connect } = require('../routes/CRMRouter')
 const PersonalUser = mongoose.model('PersonalUser')
 const Friend = mongoose.model('Friend')
 const Usernis = mongoose.model('Usernis')
@@ -94,7 +96,7 @@ const createTask = async (req,res)=>{
         let task = await new Task({
             taskName:req.body.taskName,
             description: req.body.description,
-            status: 'draft'
+            status: 'incomplete'
         })
         let user = await PersonalUser.findOne({userName:"frank"})
         await user.tasks.push(task)
@@ -151,6 +153,7 @@ const completeTask = async (req,res)=>{
         let user = await PersonalUser.findOne({userName:"frank"})
         let task = user.tasks.find(({_id}) => _id == req.params._id)
         task.status = "completed"
+        task.endDate = Date.now()
         await user.save()
         console.log(task)
         res.json(task)
@@ -162,5 +165,82 @@ const completeTask = async (req,res)=>{
 }
 
 
+const createCircle = async (req,res)=>{
+    try{
+        let user =  await PersonalUser.findOne({userName:"frank"}).lean()
+        const circleConnection = new Connection({})
+        let connection = user.connections
+        for(var property in connection){
+            let connectionList = connection[property]
+            for(const val in connectionList){
+                if(connectionList[val].tags && (connectionList[val].tags).includes(req.body.tag)){ //req.body.tag
+                    circleConnection[property].push(connectionList[val])
+                }
+            }
+        }
+        let circle = new Circle({
+            tag: req.body.tag,
+            people: circleConnection,
+            description: req.body.description,
+            name: req.body.name
+        })
+        let userSave = await PersonalUser.findOne({userName:"frank"})
+        userSave.circles.push(circle)
+        userSave.save()
+        console.log(userSave)
+        res.json(userSave)
+
+    }catch(err){
+        console.log(err)
+    }
+}
+
+const viewCircles = async (req,res) =>{
+    try{
+        let circles =  (await PersonalUser.findOne({userName:"frank"}).lean()).circles
+        console.log(circles)
+        res.json(circles)
+
+    }catch(err){
+        console.log(err)
+    }
+}
+
+const oneCircle = async (req,res) =>{
+    try{
+        let circles = (await PersonalUser.findOne({userName:"frank"}).lean()).circles
+        for(const circle of circles){
+            if(circle._id == req.params.id){
+                res.json(circle)
+            }else{
+                console.log("can't find circle")
+            }
+        }
+        console.log(circles)
+    }catch(err){
+        console.log(err)
+    }
+}
+
+const deleteCircle = async (req,res) =>{
+    try{
+        let user = await PersonalUser.findOne({userName:"frank"})
+        let circles = user.circles
+        for(const circle of circles){
+            if(circle._id == req.body._id){
+                circles.pull(circle)
+            }
+        }
+        //user.save()
+        console.log(circles)
+        res.json(circles)
+    }catch(err){
+        console.log(err)
+    }
+}
+
+
+
 module.exports = {getPersonInfo,editPersonalInfo,
-    viewConnections,createUsernis,getIdentity,viewTask,createTask,oneTask,editTask,removeTask,completeTask}
+    viewConnections,createUsernis,getIdentity,viewTask,createTask,oneTask,editTask,removeTask,completeTask,
+    createCircle,viewCircles,oneCircle,deleteCircle}

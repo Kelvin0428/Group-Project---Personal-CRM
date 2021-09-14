@@ -2,11 +2,6 @@
 const mongoose = require("mongoose")
 const bcrypt   = require('bcrypt-nodejs')
 const Schema = mongoose.Schema
-//tag schema for creating tags for different connections
-const tagSchema = new mongoose.Schema({
-    _id:false,
-    tagType:{type:String},
-})
 
 //information schema, for storing information that is not required, but is PI
 const infoSchema = new mongoose.Schema({
@@ -24,7 +19,7 @@ const infoSchema = new mongoose.Schema({
 const friendSchema = new mongoose.Schema({
     _id:false,
     id: mongoose.Types.ObjectId,
-    tags: [tagSchema],
+    tags: [{type:String}],
     accountType: {type:String, enum:['inSystem','notInSystem','business'],required:true}
 })
 
@@ -48,7 +43,7 @@ const taskSchema = new mongoose.Schema({
     description:{type:String},
     createdDate: {type: Date, required: true,default:Date.now},
     endDate: {type: Date},
-    status: {type: String, enum:['draft','incomplete','completed']}
+    status: {type: String, enum:['incomplete','failed','completed']}
 })
 
 //schema for events, including who hosted the event, who are the attendees
@@ -64,7 +59,7 @@ const eventSchema = new mongoose.Schema({
 
 //schema for grouping connections based on tags
 const circleSchema = new mongoose.Schema({
-    tags: tagSchema,
+    tag: {type:String},
     people: connectionSchema,
     description: {type:String},
     name:{type:String, required:true, default:"Circle"}
@@ -86,8 +81,8 @@ const personalUserSchema = new mongoose.Schema({
     personalInfo: infoSchema,
     connections: connectionSchema,
     tasks: [taskSchema],
-    events: [{ type: Schema.Types.ObjectId, ref: 'Event' }],
-    circles: [{ type: Schema.Types.ObjectId, ref: 'Circle' }]
+    events: [{type:Schema.Types.ObjectId,ref:'Event'}],
+    circles: [circleSchema]
 })
 
 //define the business user schema
@@ -135,6 +130,5 @@ const Task = mongoose.model('Task',taskSchema)
 const Connection = mongoose.model('Connection',connectionSchema)
 const Friend = mongoose.model('Friend',friendSchema)
 const PersonalInfo = mongoose.model('PersonalInfo',infoSchema)
-const Tag = mongoose.model('Tag',tagSchema)
 const Usernis = mongoose.model("Usernis",usernisSchema,"usernis")
-module.exports = {PersonalUser,BusinessUser,Circle,CreatedUser,Event,Task,Connection,Friend,PersonalInfo,Tag,Usernis}; // make model available to other files
+module.exports = {PersonalUser,BusinessUser,Circle,CreatedUser,Event,Task,Connection,Friend,PersonalInfo,Usernis}; // make model available to other files
