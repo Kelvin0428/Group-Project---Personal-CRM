@@ -78,9 +78,10 @@ const createUsernis = async (req,res) => {
 }
 
 
+// display all tasks for the user
 const viewTask = async (req,res) =>{
     try{
-        const user = await PersonalUser.findOne({userName:"frank"}).lean()
+        const user = await PersonalUser.findOne({userName:"frank"}).lean() //req.user.userName
         const tasks = user.tasks
         res.json(tasks)
         console.log(tasks)
@@ -89,25 +90,30 @@ const viewTask = async (req,res) =>{
     }
 }
 
+// create the task and add to user's tasks array 
 const createTask = async (req,res)=>{
     try{
+        // created date is default of current time
         let task = await new Task({
             taskName:req.body.taskName,
             description: req.body.description,
             status: 'draft'
         })
-        let user = await PersonalUser.findOne({userName:"frank"})
+        let user = await PersonalUser.findOne({userName:"frank"}) // req.user.userName
         await user.tasks.push(task)
         await user.save()
-        res.json(user)
+        res.json(user.tasks)
+        console.log(user.tasks)
     }catch(err){
         console.log(err)
     }
 }
 
+
+// show the single task
 const oneTask = async (req,res)=>{
     try{
-        let user = await PersonalUser.findOne({userName:"frank"})
+        let user = await PersonalUser.findOne({userName:"frank"}) //req.user.userName
         let task = user.tasks.find(({_id}) => _id == req.params._id)
         res.json(task)
         console.log(task)
@@ -117,43 +123,49 @@ const oneTask = async (req,res)=>{
     }
 }
 
+// update edited task 
 const editTask = async (req,res)=>{
     try{
-        let user = await PersonalUser.findOne({userName:"frank"})
+        let user = await PersonalUser.findOne({userName:"frank"}) //req.user.userName
         let task = user.tasks.find(({_id}) => _id == req.params._id)
+        // only update properties that have values
         for(const property in req.body){
             if(req.body[property]){
                 task[property] = req.body[property]
             }
         }
         await user.save()
-        console.log(user)
-        res.json(user)
+        console.log(user.tasks)
+        res.json(user.tasks)
     }catch(err){
         console.log(err)
     }
 }
 
+
+// remove the task from database
 const removeTask = async (req,res)=>{
     try{
-        let user = await PersonalUser.findOne({userName:"frank"})
-        let task = user.tasks.pull({_id:req.params._id})
+        let user = await PersonalUser.findOne({userName:"frank"}) //req.user.userName
+        user.tasks.pull({_id:req.params._id})
         await user.save()
-        console.log(user)
-        res.json(user)
+        console.log(user.tasks)
+        res.json(user.tasks)
     }catch(err){
         console.log(err)
     }
 }
 
+
+// mark the task as complete
 const completeTask = async (req,res)=>{
     try{
-        let user = await PersonalUser.findOne({userName:"frank"})
+        let user = await PersonalUser.findOne({userName:"frank"}) //req.user.userName
         let task = user.tasks.find(({_id}) => _id == req.params._id)
         task.status = "completed"
         await user.save()
-        console.log(task)
-        res.json(task)
+        console.log(user.tasks)
+        res.json(user.tasks)
 
     }catch(err){
         console.log(err)

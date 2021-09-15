@@ -87,7 +87,7 @@ const personalUserSchema = new mongoose.Schema({
     connections: connectionSchema,
     tasks: [taskSchema],
     events: [{ type: Schema.Types.ObjectId, ref: 'Event' }],
-    circles: [{ type: Schema.Types.ObjectId, ref: 'Circle' }]
+    circles: [circleSchema]
 })
 
 //define the business user schema
