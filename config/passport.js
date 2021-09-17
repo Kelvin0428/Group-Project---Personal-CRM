@@ -13,7 +13,7 @@ const {PersonalInfo} = require ('../models/db');
 const passportJWT = require("passport-jwt");
 const JwtStrategy = passportJWT.Strategy;
 const ExtractJwt = passportJWT.ExtractJwt;
-
+var crypto = require("crypto");
 module.exports = function(passport) {
     passport.use('jwt', new JwtStrategy({
         //allows for always extracting the token from the request header
@@ -38,7 +38,7 @@ module.exports = function(passport) {
                 await PersonalUser.findOne({'email':jwt_payload.body._id},(err,user)=> {
                     if(err|| !user){
                         return done(err, false, {message: "authentication failed"});
-                    }else{
+                    } else{
                         return done(null,user);
                     }
                 });
@@ -58,8 +58,10 @@ module.exports = function(passport) {
         try {
             let checkEmail = 0;
             await PersonalUser.findOne({ 'userName' :  userName }, function(err, user) {
-                if (user && (user.validPassword(password))){
+                if (user && (user.validPassword(password)) && user.active == true){
                     return done(null, user, {message: 'Login successful'});
+                }else if (user && user.active == false){
+                    return done(null,false, {message: 'account not verified'})
                 }else{
                     checkEmail = 1;
                 }
@@ -67,8 +69,10 @@ module.exports = function(passport) {
             //allow for login using email
             if(checkEmail == 1){
             await PersonalUser.findOne({'email': userName}, function(err, user){
-                if(user && (user.validPassword(password))){
+                if(user && (user.validPassword(password)) && user.active == true){
                     return done(null,user,{message:'Login successful'})
+                }else if (user && user.active == false){
+                    return done(null,false, {message: 'account not verified'})
                 }else{
                     return done(null, false, {message: 'User not found or info incorrect'});
                 }
@@ -118,8 +122,14 @@ module.exports = function(passport) {
                         var newUser = new PersonalUser();
                         newUser.userName= userName;
                         // hash password to provide security
+                        newUser.nameFamily = req.body.nameFamily;
+                        newUser.nameGiven = req.body.nameGiven;
                         newUser.password = newUser.hashPassword(password);
                         newUser.email = req.body.email;
+                        //set initial account activate to false
+                        newUser.active = false;
+                        //randomise the secretid
+                        newUser.secretID = crypto.randomBytes(16).toString('hex');
                         newUser.save(function(err) {
                             if (err)
                                 throw err;
