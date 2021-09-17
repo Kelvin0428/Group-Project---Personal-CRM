@@ -72,6 +72,7 @@ AuthenRouter.post('/signup', async (req, res, next) => {
                 from: 'polarcirclecrm@gmail.com',
                 to: Personaluser.email,
                 subject: 'Account Verification',
+                //url here needs to be changed to front ends
                 html: "<h1>Welcome to Polar Circle</h1><h2>Please proceed with the below link to activate your account</h2> <a href='http://localhost:8000/authenticate/activate/"+ Personaluser.secretID + "'>Activate</a> "
             }
 

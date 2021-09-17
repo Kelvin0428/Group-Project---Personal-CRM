@@ -41,6 +41,7 @@ const sendForget = async (req,res)=>{
                 from: 'polarcirclecrm@gmail.com',
                 to: user.email,
                 subject: 'Forgot Password',
+                //url here needs to be changed to front end's
                 html: "<h1>Welcome to Polar Circle</h1><h2>Please proceed with the below link to reset your password</h2> <a href='http://localhost:8000/authenticate/forgetPassword/"+ user.secretID + "'>Reset password</a> "
             }
 
