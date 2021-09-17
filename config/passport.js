@@ -60,7 +60,7 @@ module.exports = function(passport) {
             await PersonalUser.findOne({ 'userName' :  userName }, function(err, user) {
                 if (user && (user.validPassword(password)) && user.active == true){
                     return done(null, user, {message: 'Login successful'});
-                }else if (user.active == false){
+                }else if (user && user.active == false){
                     return done(null,false, {message: 'account not verified'})
                 }else{
                     checkEmail = 1;
@@ -69,9 +69,9 @@ module.exports = function(passport) {
             //allow for login using email
             if(checkEmail == 1){
             await PersonalUser.findOne({'email': userName}, function(err, user){
-                if(user && (user.validPassword(password))){
+                if(user && (user.validPassword(password)) && user.active == true){
                     return done(null,user,{message:'Login successful'})
-                }else if (user.active == false){
+                }else if (user && user.active == false){
                     return done(null,false, {message: 'account not verified'})
                 }else{
                     return done(null, false, {message: 'User not found or info incorrect'});
