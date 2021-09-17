@@ -6,12 +6,15 @@ var crypto = require("crypto");
 const activateAccount = async (req,res) => {
     try{
         const user = await PersonalUser.findOne({secretID:req.params.id})
-        if(user.active == false){
+        if(user && user.active == false){
             user.active = true;
             user.secretID = null;
             await user.save();
         }
-        res.send(user);
+        else if (!user){
+            res.send('account already verified');
+        }
+        res.send('verified successfully');
     }catch(err){
         console.log(err)
     }
