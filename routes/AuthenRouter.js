@@ -34,7 +34,7 @@ AuthenRouter.post('/login', async (req, res, next) => {
                 //set the cookie
                 res.cookie('jwt',token, { httpOnly: false, sameSite: false, secure: true, domain:"http://localhost:8000"});
                 //set output as token and username
-                const output = {token:token, userName:Personaluser.userName};
+                const output = {token:token, userName:Personaluser.userName,nameGiven: Personaluser.nameGiven, nameFamily: Personaluser.nameFamily};
                 return res.status(200).json(output);
             });
         } catch (error) {
@@ -45,6 +45,11 @@ AuthenRouter.post('/login', async (req, res, next) => {
 
 AuthenRouter.get('/activate/:id', (req,res) => AuthenController.activateAccount(req,res));
 
+AuthenRouter.post('/sendForget', (req,res)=>AuthenController.sendForget(req,res));
+
+AuthenRouter.post('/forgetPassword/:id', (req,res) => AuthenController.forgetPassword(req,res));
+
+AuthenRouter.post('/resetPassword',passport.authenticate('jwt',{session: false}), (req,res)=> AuthenController.resetPassword(req,res));
 //handling login requests
 AuthenRouter.post('/signup', async (req, res, next) => {
     //utilises the Personallogin authentication method for personal users to log in 
