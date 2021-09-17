@@ -120,10 +120,12 @@ module.exports = function(passport) {
                     else{
                         //if username and email are both unique, save the user signup
                         var newUser = new PersonalUser();
+                        var newInfo = new PersonalInfo();
+                        newInfo.nameFamily = req.body.nameFamily;
+                        newInfo.nameGiven = req.body.nameGiven;
                         newUser.userName= userName;
                         // hash password to provide security
-                        newUser.nameFamily = req.body.nameFamily;
-                        newUser.nameGiven = req.body.nameGiven;
+                        newUser.personalInfo = newInfo;
                         newUser.password = newUser.hashPassword(password);
                         newUser.email = req.body.email;
                         //set initial account activate to false

@@ -34,7 +34,8 @@ AuthenRouter.post('/login', async (req, res, next) => {
                 //set the cookie
                 res.cookie('jwt',token, { httpOnly: false, sameSite: false, secure: true, domain:"http://localhost:8000"});
                 //set output as token and username
-                const output = {token:token, userName:Personaluser.userName,nameGiven: Personaluser.nameGiven, nameFamily: Personaluser.nameFamily};
+
+                const output = {token:token, userName:Personaluser.userName,nameGiven: Personaluser.personalInfo.nameGiven, nameFamily: Personaluser.personalInfo.nameFamily};
                 return res.status(200).json(output);
             });
         } catch (error) {
@@ -72,7 +73,7 @@ AuthenRouter.post('/signup', async (req, res, next) => {
                 from: 'polarcirclecrm@gmail.com',
                 to: Personaluser.email,
                 subject: 'Account Verification',
-                //url here needs to be changed to front ends
+                //http://localhost:3000/activate/
                 html: "<h1>Welcome to Polar Circle</h1><h2>Please proceed with the below link to activate your account</h2> <a href='http://localhost:8000/authenticate/activate/"+ Personaluser.secretID + "'>Activate</a> "
             }
 
