@@ -122,6 +122,8 @@ module.exports = function(passport) {
                         var newUser = new PersonalUser();
                         newUser.userName= userName;
                         // hash password to provide security
+                        newUser.nameFamily = req.body.nameFamily;
+                        newUser.nameGiven = req.body.nameGiven;
                         newUser.password = newUser.hashPassword(password);
                         newUser.email = req.body.email;
                         //set initial account activate to false
