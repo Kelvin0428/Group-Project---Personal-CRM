@@ -74,7 +74,7 @@ AuthenRouter.post('/Blogin', async (req, res, next) => {
 });
 
 AuthenRouter.post('/Bsignup', async (req, res, next) => {
-    //utilises the Personallogin authentication method for personal users to log in 
+    //utilises the BUsinesslogin authentication method for business users to log in 
     passport.authenticate('Bsignup', async (errors, Businessuser, message) => {
         try {
 

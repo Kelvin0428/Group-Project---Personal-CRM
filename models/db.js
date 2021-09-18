@@ -3,10 +3,7 @@ const mongoose = require("mongoose")
 const bcrypt   = require('bcrypt-nodejs')
 const Schema = mongoose.Schema
 //tag schema for creating tags for different connections
-const tagSchema = new mongoose.Schema({
-    _id:false,
-    tagType:{type:String},
-})
+
 
 //information schema, for storing information that is not required, but is PI
 const infoSchema = new mongoose.Schema({
@@ -24,7 +21,7 @@ const infoSchema = new mongoose.Schema({
 const friendSchema = new mongoose.Schema({
     _id:false,
     id: mongoose.Types.ObjectId,
-    tags: [tagSchema],
+    tags: [{type:String}],
     timeGoal: {type:Number, default: null},
     timeType: {type:String, enum:['week','month']},
     numGoal: {type: Number},
@@ -67,7 +64,7 @@ const eventSchema = new mongoose.Schema({
 
 //schema for grouping connections based on tags
 const circleSchema = new mongoose.Schema({
-    tags: tagSchema,
+    tags: {type:String},
     people: connectionSchema,
     description: {type:String},
     name:{type:String, required:true, default:"Circle"}
@@ -150,6 +147,5 @@ const Task = mongoose.model('Task',taskSchema)
 const Connection = mongoose.model('Connection',connectionSchema)
 const Friend = mongoose.model('Friend',friendSchema)
 const PersonalInfo = mongoose.model('PersonalInfo',infoSchema)
-const Tag = mongoose.model('Tag',tagSchema)
 const Usernis = mongoose.model("Usernis",usernisSchema,"usernis")
-module.exports = {PersonalUser,BusinessUser,Circle,CreatedUser,Event,Task,Connection,Friend,PersonalInfo,Tag,Usernis}; // make model available to other files
+module.exports = {PersonalUser,BusinessUser,Circle,CreatedUser,Event,Task,Connection,Friend,PersonalInfo,Usernis}; // make model available to other files
