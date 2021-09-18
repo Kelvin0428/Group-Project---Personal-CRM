@@ -4,6 +4,7 @@ const Friend = mongoose.model('Friend')
 const Usernis = mongoose.model('Usernis')
 const Connection = mongoose.model('Connection')
 const Task = mongoose.model('Task')
+const CompletedTask = mongoose.model('CompletedTask')
 
 
 // get user's personal information
@@ -60,11 +61,11 @@ const viewConnections = async (req,res) => {
 const createUsernis = async (req,res) => {
     try{
         let usernis = await new Usernis({
+            fullName:req.body.nameGiven+" "+req.body.nameFamily,
             personalInfo:req.body
         })
         let people = await new Friend({
             id:usernis._id,
-            tags:[],
             accountType: 'notInSystem'
         })
         let user = await PersonalUser.findOne({userName:req.user.userName})
@@ -97,6 +98,7 @@ const createTask = async (req,res)=>{
         let task = await new Task({
             taskName:req.body.taskName,
             description: req.body.description,
+            connectionID:req.body.id,
             status: 'draft'
         })
         let user = await PersonalUser.findOne({userName:"frank"}) // req.user.userName
@@ -135,8 +137,8 @@ const editTask = async (req,res)=>{
             }
         }
         await user.save()
-        console.log(user.tasks)
-        res.json(user.tasks)
+        console.log(task)
+        res.json(task)
     }catch(err){
         console.log(err)
     }
@@ -163,14 +165,19 @@ const completeTask = async (req,res)=>{
         let user = await PersonalUser.findOne({userName:"frank"}) //req.user.userName
         let task = user.tasks.find(({_id}) => _id == req.params._id)
         task.status = "completed"
+        task.endDate = Date.now()
+        let completeTask = await new CompletedTask({
+            relatedConnection:task.connectionID,
+            timeStamp:task.endDate
+        })
+        user.completedTask.push(completeTask)
         await user.save()
-        console.log(user.tasks)
-        res.json(user.tasks)
+        console.log(task)
+        res.json(task)
 
     }catch(err){
         console.log(err)
     }
-
 }
 
 
