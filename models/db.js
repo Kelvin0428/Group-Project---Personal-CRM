@@ -25,6 +25,10 @@ const friendSchema = new mongoose.Schema({
     _id:false,
     id: mongoose.Types.ObjectId,
     tags: [tagSchema],
+    timeGoal: {type:Number, default: null},
+    timeType: {type:String, enum:['week','month']},
+    numGoal: {type: Number},
+    connectionScore:{type:Number},
     accountType: {type:String, enum:['inSystem','notInSystem','business'],required:true}
 })
 
@@ -43,7 +47,7 @@ connectionSchema = new mongoose.Schema({
 const taskSchema = new mongoose.Schema({
     //what is the task name
     taskName: {type: String, required:true},
-    //task objective
+    connectionID: mongoose.Types.ObjectId,
     description:{type:String},
     createdDate: {type: Date, required: true},
     endDate: {type: Date},
@@ -76,7 +80,10 @@ const createdUserSchema = new mongoose.Schema({
     circles: [{ type: Schema.Types.ObjectId, ref: 'Circle' }]
 })
 
-
+const completedTaskSchema = new mongoose.Schema({
+    relatedConnection: mongoose.Types.ObjectId,
+    timeStamp: {type:Date}
+})
 // define the User schema
 const personalUserSchema = new mongoose.Schema({
     email: {type: String, required: true, unique: true},
@@ -85,6 +92,7 @@ const personalUserSchema = new mongoose.Schema({
     personalInfo: infoSchema,
     connections: connectionSchema,
     tasks: [{ type: Schema.Types.ObjectId, ref: 'Task' }],
+    completedTask: [completedTaskSchema],
     events: [{ type: Schema.Types.ObjectId, ref: 'Event' }],
     circles: [{ type: Schema.Types.ObjectId, ref: 'Circle' }],
     //active to decide if the account is verified and active
@@ -126,7 +134,10 @@ businessUserSchema.methods.validPassword = function(password) {
 
 const usernisSchema = new mongoose.Schema({
     _id:{type:mongoose.Types.ObjectId,auto:true},
-    personalInfo: infoSchema
+    personalInfo: infoSchema,
+    fullName: {type:String, required:true},
+    events: [{ type: Schema.Types.ObjectId, ref: 'Event' }],
+    circles: [{ type: Schema.Types.ObjectId, ref: 'Circle' }]
 })
 
 
