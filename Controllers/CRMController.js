@@ -1,6 +1,5 @@
 const mongoose = require('mongoose')
 const { BusinessUser, Circle } = require('../models/db')
-const { connect } = require('../routes/CRMRouter')
 const PersonalUser = mongoose.model('PersonalUser')
 const Friend = mongoose.model('Friend')
 const Usernis = mongoose.model('Usernis')
@@ -207,7 +206,6 @@ const createCircle = async (req,res)=>{
         userSave.save()
         console.log(userSave)
         res.json(userSave)
-
     }catch(err){
         console.log(err)
     }
@@ -230,11 +228,11 @@ const oneCircle = async (req,res) =>{
         for(const circle of circles){
             if(circle._id == req.params.id){
                 res.json(circle)
+                console.log(circle)
             }else{
                 console.log("can't find circle")
             }
         }
-        console.log(circles)
     }catch(err){
         console.log(err)
     }
@@ -243,22 +241,38 @@ const oneCircle = async (req,res) =>{
 const deleteCircle = async (req,res) =>{
     try{
         let user = await PersonalUser.findOne({userName:"frank"})
-        let circles = user.circles
-        for(const circle of circles){
-            if(circle._id == req.body._id){
-                circles.pull(circle)
+        let circle = user.circles.find(obj => obj.id == req.params.id)
+        user.circles.pull(circle)
+        user.save()
+        console.log(user.circles)
+        res.json(user.circles)
+    }catch(err){
+        console.log(err)
+    }
+}
+
+const removeConnection = async (req,res) =>{
+    try{
+        let user = await PersonalUser.findOne({userName:"frank"}).lean()
+        let people = user.circles.find(circle =>circle._id == req.params.id ).people
+        for(obj in people){
+            for(index in people[obj]){
+                if(people[obj][index].id == req.body.id){
+                    people[obj].splice(index,1)
+                }
             }
         }
-        //user.save()
-        console.log(circles)
-        res.json(circles)
+        let changedCircles = user.circles
+        let userSave = await PersonalUser.findOneAndUpdate({userName:"frank"},{circles:changedCircles})
+        await userSave.save()
+        console.log(userSave.circles)
+        res.json(userSave.circles)
     }catch(err){
         console.log(err)
     }
 }
 
 
-
 module.exports = {getPersonInfo,editPersonalInfo,
     viewConnections,createUsernis,getIdentity,viewTask,createTask,oneTask,editTask,removeTask,completeTask,
-    createCircle,viewCircles,oneCircle,deleteCircle}
+    createCircle,viewCircles,oneCircle,deleteCircle,removeConnection}

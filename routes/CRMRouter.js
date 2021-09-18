@@ -23,6 +23,8 @@ CRMRouter.get('/circles',(req,res)=>CRMController.viewCircles(req,res))
 
 CRMRouter.get('/circle/:id',(req,res)=>CRMController.oneCircle(req,res))
 
-CRMRouter.post('/deleteCircle',(req,res)=>CRMController.deleteCircle(req,res))
+CRMRouter.post('/circle/delete/:id',(req,res)=>CRMController.deleteCircle(req,res))
+
+CRMRouter.post('/circle/:id/removeConnection',(req,res)=>CRMController.removeConnection(req,res))
 
 module.exports = CRMRouter
