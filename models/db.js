@@ -3,10 +3,7 @@ const mongoose = require("mongoose")
 const bcrypt   = require('bcrypt-nodejs')
 const Schema = mongoose.Schema
 //tag schema for creating tags for different connections
-const tagSchema = new mongoose.Schema({
-    _id:false,
-    tagType:{type:String},
-})
+
 
 //information schema, for storing information that is not required, but is PI
 const infoSchema = new mongoose.Schema({
@@ -24,7 +21,7 @@ const infoSchema = new mongoose.Schema({
 const friendSchema = new mongoose.Schema({
     _id:false,
     id: mongoose.Types.ObjectId,
-    tags: [tagSchema],
+    tags: [{type:String}],
     timeGoal: {type:Number, default: null},
     timeType: {type:String, enum:['week','month']},
     numGoal: {type: Number},
@@ -67,7 +64,7 @@ const eventSchema = new mongoose.Schema({
 
 //schema for grouping connections based on tags
 const circleSchema = new mongoose.Schema({
-    tags: tagSchema,
+    tags: {type:String},
     people: connectionSchema,
     description: {type:String},
     name:{type:String, required:true, default:"Circle"}
@@ -104,9 +101,8 @@ const personalUserSchema = new mongoose.Schema({
 //define the business user schema
 const businessUserSchema = new mongoose.Schema({
     email: {type: String, required: true, unique: true},
-    userName: {type: String, required: true},
     password: {type: String, required: true},
-    name: {type:String, required:true},
+    name: {type:String, required:true, unique:true},
     description:{type:String},
     events:[{ type: Schema.Types.ObjectId, ref: 'Event' }],
     tasks:[{ type: Schema.Types.ObjectId, ref: 'Task' }]
@@ -122,7 +118,7 @@ personalUserSchema.methods.hashPassword = function(password) {
 personalUserSchema.methods.validPassword = function(password) {
     return bcrypt.compareSync(password, this.password);
 };
-/*
+
 //same but for business users
 businessUserSchema.methods.hashPassword = function(password) {
     return bcrypt.hashSync(password, bcrypt.genSaltSync(10), null);
@@ -130,7 +126,7 @@ businessUserSchema.methods.hashPassword = function(password) {
 businessUserSchema.methods.validPassword = function(password) {
     return bcrypt.compareSync(password, this.password);
 };
-*/
+
 
 const usernisSchema = new mongoose.Schema({
     _id:{type:mongoose.Types.ObjectId,auto:true},
@@ -151,6 +147,5 @@ const Task = mongoose.model('Task',taskSchema)
 const Connection = mongoose.model('Connection',connectionSchema)
 const Friend = mongoose.model('Friend',friendSchema)
 const PersonalInfo = mongoose.model('PersonalInfo',infoSchema)
-const Tag = mongoose.model('Tag',tagSchema)
 const Usernis = mongoose.model("Usernis",usernisSchema,"usernis")
-module.exports = {PersonalUser,BusinessUser,Circle,CreatedUser,Event,Task,Connection,Friend,PersonalInfo,Tag,Usernis}; // make model available to other files
+module.exports = {PersonalUser,BusinessUser,Circle,CreatedUser,Event,Task,Connection,Friend,PersonalInfo,Usernis}; // make model available to other files

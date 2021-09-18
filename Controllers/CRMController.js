@@ -4,7 +4,7 @@ const Friend = mongoose.model('Friend')
 const Usernis = mongoose.model('Usernis')
 const Connection = mongoose.model('Connection')
 
-
+const expressValidator = require('express-validator')
 // get user's personal information
 const getPersonInfo = async (req,res) => {
     try{
@@ -76,5 +76,47 @@ const createUsernis = async (req,res) => {
     }
 }
 
+const search = async (req, res) => { 
+	// validate the user input
+	const validationErrors = expressValidator.validationResult(req)
+	    if (!validationErrors.isEmpty() ) {
+		    return res.status(422).render('error', {errorCode: '422', message: 'Search works on alphabet characters only.'})
+	    }
+	    var query = {}
+	    if (req.body.tag !== '') {
+		    query["tag"] = {$regex: new RegExp(req.body.tag, 'i') }
+	    }
 
-module.exports = {getPersonInfo,editPersonalInfo,viewConnections,createUsernis,getIdentity}
+	    try {
+		    const nis = await PersonalUser.findOne({userName:req.user.userName})
+            let clist = nis.connections.cnis;
+            let reg = new RegExp(req.body.tag, 'i')
+            console.log(reg);
+            let outputTag = [];
+            let idlist = [];
+            let outputName=[];
+            let foundid = [];
+            for(let i=0;i<clist.length;i++){
+                idlist.push(clist[i].id);
+                for(let j=0; j<clist[i].tags.length;j++){
+                   if(reg.test(clist[i].tags[j])){
+                        const found = await Usernis.findOne({_id: clist[i].id});
+                        await outputTag.push({name:found.fullName, id:found._id, tag:clist[i].tags[j]});
+                        foundid.push(JSON.stringify(found._id))
+                        break;
+                   }
+                }
+            }
+            const indis = await Usernis.find().where('_id').in(idlist).exec();      
+            for(let i=0;i<indis.length;i++){
+                if(!foundid.includes(JSON.stringify(indis[i]._id)) && reg.test(indis[i].fullName)){
+                    await outputName.push({name:indis[i].fullName,id:indis[i]._id});
+                }
+            }
+            res.send({tag:outputTag,name:outputName});
+	    } catch (err) {
+		    console.log(err)
+	    }
+}
+
+module.exports = {getPersonInfo,editPersonalInfo,viewConnections,createUsernis,getIdentity,search}
