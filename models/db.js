@@ -104,9 +104,8 @@ const personalUserSchema = new mongoose.Schema({
 //define the business user schema
 const businessUserSchema = new mongoose.Schema({
     email: {type: String, required: true, unique: true},
-    userName: {type: String, required: true},
     password: {type: String, required: true},
-    name: {type:String, required:true},
+    name: {type:String, required:true, unique:true},
     description:{type:String},
     events:[{ type: Schema.Types.ObjectId, ref: 'Event' }],
     tasks:[{ type: Schema.Types.ObjectId, ref: 'Task' }]
@@ -122,7 +121,7 @@ personalUserSchema.methods.hashPassword = function(password) {
 personalUserSchema.methods.validPassword = function(password) {
     return bcrypt.compareSync(password, this.password);
 };
-/*
+
 //same but for business users
 businessUserSchema.methods.hashPassword = function(password) {
     return bcrypt.hashSync(password, bcrypt.genSaltSync(10), null);
@@ -130,7 +129,7 @@ businessUserSchema.methods.hashPassword = function(password) {
 businessUserSchema.methods.validPassword = function(password) {
     return bcrypt.compareSync(password, this.password);
 };
-*/
+
 
 const usernisSchema = new mongoose.Schema({
     _id:{type:mongoose.Types.ObjectId,auto:true},

@@ -38,8 +38,10 @@ app.use(passport.session());
 //set up CRM routes
 const CRMRouter = require('./routes/CRMRouter.js')
 const AuthenRouter = require('./routes/AuthenRouter.js')
+const BusinessRouter = require('./routes/BusinessRouter.js')
 app.use('/', CRMRouter);
 app.use('/authenticate',AuthenRouter)
+app.use('/business',BusinessRouter);
 
 app.all('*', (req, res) => {res.send('Invalid Route')})
 

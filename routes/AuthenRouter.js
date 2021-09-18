@@ -43,6 +43,51 @@ AuthenRouter.post('/login', async (req, res, next) => {
     })(req, res, next);
 });
 
+//handling login requests
+AuthenRouter.post('/Blogin', async (req, res, next) => {
+    //utilises the Businesslogin authentication method for business users to log in 
+    passport.authenticate('Businesslogin', async (errors, Businessuser, message) => {
+        try {
+                      // if Personallogin authentication has error
+            if(errors || !Businessuser){
+                return res.status(200).send(message)
+            }
+            console.log(Businessuser);
+            //login to the user
+            req.login(Businessuser, { session : false }, async (error) => {
+                if(error){
+                    return next(error);
+                }
+                const body = { _id : Businessuser.email };
+                //sign the token and allow it to expire in 6 hours
+                const token = jwt.sign({ body },process.env.PASSPORT_KEY, {expiresIn: "6h"});
+                //set the cookie
+                res.cookie('jwt',token, { httpOnly: false, sameSite: false, secure: true, domain:"http://localhost:8000"});
+                //set output as token and username
+                const output = {token:token, name:Businessuser.name};
+                return res.status(200).json(output);
+            });
+        } catch (error) {
+            return next(error);
+        }
+    })(req, res, next);
+});
+
+AuthenRouter.post('/Bsignup', async (req, res, next) => {
+    //utilises the Personallogin authentication method for personal users to log in 
+    passport.authenticate('Bsignup', async (errors, Businessuser, message) => {
+        try {
+
+            if(errors || !Businessuser){
+                return res.status(200).send(message)
+            }
+            return res.status(200).send("Sign Up Successful")
+        } catch (error) {
+            return next(error);
+        }
+    })(req, res, next);
+});
+
 AuthenRouter.get('/activate/:id', (req,res) => AuthenController.activateAccount(req,res));
 
 AuthenRouter.post('/sendForget', (req,res)=>AuthenController.sendForget(req,res));
