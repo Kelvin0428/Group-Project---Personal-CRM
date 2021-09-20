@@ -8,7 +8,7 @@ const infoSchema = new mongoose.Schema({
     _id:false,
     nameFamily: {type: String},
     nameGiven: String,
-    DOB: {type: Date},
+    DOB: {type: String},
     gender: {type:String, enum:['Male','Female','Other']},
     address:{type: String}, 
     description:{type: String},
@@ -71,7 +71,7 @@ const eventSchema = new mongoose.Schema({
 
 //schema for grouping connections based on tags
 const circleSchema = new mongoose.Schema({
-    tags: String,
+    tag: String,
     people: connectionSchema,
     description: {type:String},
     name:{type:String, required:true, default:"Circle"}

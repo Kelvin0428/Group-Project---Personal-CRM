@@ -73,7 +73,7 @@ const createUsernis = async (req,res) => {
         await usernis.save()
         user.connections.cnis.push(people)
         await user.save()
-        res.json(user)
+        res.json(user.connections)
     }catch(err){
         console.log(err)
     }
@@ -83,7 +83,7 @@ const createUsernis = async (req,res) => {
 // display all tasks for the user
 const viewTask = async (req,res) =>{
     try{
-        const user = await PersonalUser.findOne({userName:"frank"}).lean() //req.user.userName
+        const user = await PersonalUser.findOne({userName:req.user.userName}).lean()
         const tasks = user.tasks
         res.json(tasks)
         console.log(tasks)
@@ -100,9 +100,9 @@ const createTask = async (req,res)=>{
             taskName:req.body.taskName,
             description: req.body.description,
             connectionID:req.body.id,
-            status: 'draft'
+            status: 'incomplete'
         })
-        let user = await PersonalUser.findOne({userName:"frank"}) // req.user.userName
+        let user = await PersonalUser.findOne({userName:req.user.userName}) 
         await user.tasks.push(task)
         await user.save()
         res.json(user.tasks)
@@ -116,7 +116,7 @@ const createTask = async (req,res)=>{
 // show the single task
 const oneTask = async (req,res)=>{
     try{
-        let user = await PersonalUser.findOne({userName:"frank"}) //req.user.userName
+        let user = await PersonalUser.findOne({userName:req.user.userName}) 
         let task = user.tasks.find(({_id}) => _id == req.params._id)
         res.json(task)
         console.log(task)
@@ -129,7 +129,7 @@ const oneTask = async (req,res)=>{
 // update edited task 
 const editTask = async (req,res)=>{
     try{
-        let user = await PersonalUser.findOne({userName:"frank"}) //req.user.userName
+        let user = await PersonalUser.findOne({userName:req.user.userName})
         let task = user.tasks.find(({_id}) => _id == req.params._id)
         // only update properties that have values
         for(const property in req.body){
@@ -149,7 +149,7 @@ const editTask = async (req,res)=>{
 // remove the task from database
 const removeTask = async (req,res)=>{
     try{
-        let user = await PersonalUser.findOne({userName:"frank"}) //req.user.userName
+        let user = await PersonalUser.findOne({userName:req.user.userName})
         user.tasks.pull({_id:req.params._id})
         await user.save()
         console.log(user.tasks)
@@ -163,7 +163,7 @@ const removeTask = async (req,res)=>{
 // mark the task as complete
 const completeTask = async (req,res)=>{
     try{
-        let user = await PersonalUser.findOne({userName:"frank"}) //req.user.userName
+        let user = await PersonalUser.findOne({userName:req.user.userName})
         let task = user.tasks.find(({_id}) => _id == req.params._id)
         task.status = "completed"
         task.endDate = Date.now()
@@ -184,13 +184,13 @@ const completeTask = async (req,res)=>{
 
 const createCircle = async (req,res)=>{
     try{
-        let user =  await PersonalUser.findOne({userName:"frank"}).lean()
+        let user =  await PersonalUser.findOne({userName:req.user.userName}).lean()
         const circleConnection = new Connection({})
         let connection = user.connections
         for(var property in connection){
             let connectionList = connection[property]
             for(const val in connectionList){
-                if(connectionList[val].tags && (connectionList[val].tags).includes(req.body.tag)){ //req.body.tag
+                if(connectionList[val].tags && (connectionList[val].tags).includes(req.body.tag)){
                     circleConnection[property].push(connectionList[val])
                 }
             }
@@ -201,11 +201,11 @@ const createCircle = async (req,res)=>{
             description: req.body.description,
             name: req.body.name
         })
-        let userSave = await PersonalUser.findOne({userName:"frank"})
+        let userSave = await PersonalUser.findOne({userName:req.user.userName})
         userSave.circles.push(circle)
         userSave.save()
-        console.log(userSave)
-        res.json(userSave)
+        console.log(userSave.circles)
+        res.json(userSave.circles)
     }catch(err){
         console.log(err)
     }
@@ -213,7 +213,7 @@ const createCircle = async (req,res)=>{
 
 const viewCircles = async (req,res) =>{
     try{
-        let circles =  (await PersonalUser.findOne({userName:"frank"}).lean()).circles
+        let circles =  (await PersonalUser.findOne({userName:req.user.userName}).lean()).circles
         console.log(circles)
         res.json(circles)
 
@@ -224,7 +224,7 @@ const viewCircles = async (req,res) =>{
 
 const oneCircle = async (req,res) =>{
     try{
-        let circles = (await PersonalUser.findOne({userName:"frank"}).lean()).circles
+        let circles = (await PersonalUser.findOne({userName:req.user.userName}).lean()).circles
         for(const circle of circles){
             if(circle._id == req.params.id){
                 res.json(circle)
@@ -240,7 +240,7 @@ const oneCircle = async (req,res) =>{
 
 const deleteCircle = async (req,res) =>{
     try{
-        let user = await PersonalUser.findOne({userName:"frank"})
+        let user = await PersonalUser.findOne({userName:req.user.userName})
         let circle = user.circles.find(obj => obj.id == req.params.id)
         user.circles.pull(circle)
         user.save()
@@ -253,7 +253,7 @@ const deleteCircle = async (req,res) =>{
 
 const removeConnection = async (req,res) =>{
     try{
-        let user = await PersonalUser.findOne({userName:"frank"}).lean()
+        let user = await PersonalUser.findOne({userName:req.user.userName}).lean()
         let people = user.circles.find(circle =>circle._id == req.params.id ).people
         for(obj in people){
             for(index in people[obj]){
@@ -263,7 +263,7 @@ const removeConnection = async (req,res) =>{
             }
         }
         let changedCircles = user.circles
-        let userSave = await PersonalUser.findOneAndUpdate({userName:"frank"},{circles:changedCircles})
+        let userSave = await PersonalUser.findOneAndUpdate({userName:req.user.userName},{circles:changedCircles})
         await userSave.save()
         console.log(userSave.circles)
         res.json(userSave.circles)
