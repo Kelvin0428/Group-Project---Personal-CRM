@@ -2,15 +2,13 @@
 const mongoose = require("mongoose")
 const bcrypt   = require('bcrypt-nodejs')
 const Schema = mongoose.Schema
-//tag schema for creating tags for different connections
-
 
 //information schema, for storing information that is not required, but is PI
 const infoSchema = new mongoose.Schema({
     _id:false,
     nameFamily: {type: String},
     nameGiven: String,
-    DOB: {type: Date},
+    DOB: {type: String},
     gender: {type:String, enum:['Male','Female','Other']},
     address:{type: String}, 
     description:{type: String},
@@ -22,9 +20,9 @@ const friendSchema = new mongoose.Schema({
     _id:false,
     id: mongoose.Types.ObjectId,
     tags: [{type:String}],
-    timeGoal: {type:Number, default: null},
-    timeType: {type:String, enum:['week','month']},
-    numGoal: {type: Number},
+    timeGoal:{type:Number,default:2},
+    timeType:{type:String,enum:['week','month'],default:"week"},
+    numGoal:{type:Number,default:1},
     connectionScore:{type:Number},
     accountType: {type:String, enum:['inSystem','notInSystem','business'],required:true}
 })
@@ -42,14 +40,23 @@ connectionSchema = new mongoose.Schema({
 
 //schema for storing tasks
 const taskSchema = new mongoose.Schema({
+    _id:{type:mongoose.Types.ObjectId,auto:true},
+    connectionID:{type:mongoose.Types.ObjectId},
     //what is the task name
     taskName: {type: String, required:true},
     connectionID: mongoose.Types.ObjectId,
     description:{type:String},
-    createdDate: {type: Date, required: true},
+    createdDate: {type: Date, required: true,default:Date.now},
     endDate: {type: Date},
-    status: {type: String, enum:['draft','incomplete','completed']}
+    status: {type: String, enum:['incomplete','failed','completed']}
 })
+
+
+const completedTaskSchema = new mongoose.Schema({
+    relatedConnection: mongoose.Types.ObjectId,
+    timeStamp:{type:Date}
+})
+
 
 //schema for events, including who hosted the event, who are the attendees
 const eventSchema = new mongoose.Schema({
@@ -64,18 +71,12 @@ const eventSchema = new mongoose.Schema({
 
 //schema for grouping connections based on tags
 const circleSchema = new mongoose.Schema({
-    tags: {type:String},
+    tag: String,
     people: connectionSchema,
     description: {type:String},
     name:{type:String, required:true, default:"Circle"}
 })
 
-//schema for user profiles created by existing users for connections that are not using the crm
-const createdUserSchema = new mongoose.Schema({
-    personalInfo: infoSchema,
-    events: [{ type: Schema.Types.ObjectId, ref: 'Event' }],
-    circles: [{ type: Schema.Types.ObjectId, ref: 'Circle' }]
-})
 
 const completedTaskSchema = new mongoose.Schema({
     relatedConnection: mongoose.Types.ObjectId,
@@ -87,6 +88,7 @@ const personalUserSchema = new mongoose.Schema({
     userName: {type: String, required: true, unique:true},
     password: {type: String, required: true},
     personalInfo: infoSchema,
+    completedTask:[completedTaskSchema],
     connections: connectionSchema,
     tasks: [{ type: Schema.Types.ObjectId, ref: 'Task' }],
     completedTask: [completedTaskSchema],
@@ -106,6 +108,15 @@ const businessUserSchema = new mongoose.Schema({
     description:{type:String},
     events:[{ type: Schema.Types.ObjectId, ref: 'Event' }],
     tasks:[{ type: Schema.Types.ObjectId, ref: 'Task' }]
+})
+
+// define the users not in the system
+const usernisSchema = new mongoose.Schema({
+    _id:{type:mongoose.Types.ObjectId,auto:true},
+    fullName:{type:String,required:true},
+    personalInfo: infoSchema,
+    events: [{ type: Schema.Types.ObjectId, ref: 'Event' }],
+    circles: [{ type: Schema.Types.ObjectId, ref: 'Circle' }]
 })
 
 
@@ -128,24 +139,16 @@ businessUserSchema.methods.validPassword = function(password) {
 };
 
 
-const usernisSchema = new mongoose.Schema({
-    _id:{type:mongoose.Types.ObjectId,auto:true},
-    personalInfo: infoSchema,
-    fullName: {type:String, required:true},
-    events: [{ type: Schema.Types.ObjectId, ref: 'Event' }],
-    circles: [{ type: Schema.Types.ObjectId, ref: 'Circle' }]
-})
-
 
 // compile the Schemas into Models
 const PersonalUser = mongoose.model('PersonalUser', personalUserSchema)
 const BusinessUser = mongoose.model('BusinessUser', businessUserSchema)
 const Circle = mongoose.model('Circle',circleSchema)
-const CreatedUser = mongoose.model('CreatedUser',createdUserSchema)
 const Event = mongoose.model('Event',eventSchema)
 const Task = mongoose.model('Task',taskSchema)
 const Connection = mongoose.model('Connection',connectionSchema)
 const Friend = mongoose.model('Friend',friendSchema)
 const PersonalInfo = mongoose.model('PersonalInfo',infoSchema)
 const Usernis = mongoose.model("Usernis",usernisSchema,"usernis")
-module.exports = {PersonalUser,BusinessUser,Circle,CreatedUser,Event,Task,Connection,Friend,PersonalInfo,Usernis}; // make model available to other files
+const CompletedTask = mongoose.model("CompletedTask",completedTaskSchema)
+module.exports = {PersonalUser,BusinessUser,Circle,CompletedTask,Event,Task,Connection,Friend,PersonalInfo,Usernis}; // make model available to other files
