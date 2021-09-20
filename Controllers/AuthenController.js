@@ -79,7 +79,7 @@ const forgetPassword = async (req,res)=>{
 
 const resetPassword = async (req,res)=>{
     try{
-        const user = await PersonalUser.findOne({userName: req.body.userName});
+        const user = await PersonalUser.findOne({userName: req.user.userName});
         if(!user){
             res.send("user name incorrect");
         }else if (user.validPassword(req.body.currentPassword)){
