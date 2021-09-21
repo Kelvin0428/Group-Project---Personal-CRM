@@ -53,7 +53,7 @@ const taskSchema = new mongoose.Schema({
 
 //schema for events, including who hosted the event, who are the attendees
 const eventSchema = new mongoose.Schema({
-    eventDate: {type: Date, required:true},
+    eventDate: {type: String, required:true},
     description:{type:String},
     eventName:{type:String},
     eventAddress:{type:String},
@@ -75,6 +75,7 @@ const completedTaskSchema = new mongoose.Schema({
     relatedConnection: mongoose.Types.ObjectId,
     timeStamp: {type:Date}
 })
+
 // define the User schema
 const personalUserSchema = new mongoose.Schema({
     email: {type: String, required: true, unique: true},
@@ -83,10 +84,9 @@ const personalUserSchema = new mongoose.Schema({
     personalInfo: infoSchema,
     completedTask:[completedTaskSchema],
     connections: connectionSchema,
-    tasks: [{ type: Schema.Types.ObjectId, ref: 'Task' }],
-    completedTask: [completedTaskSchema],
+    tasks: [taskSchema],
     events: [{ type: Schema.Types.ObjectId, ref: 'Event' }],
-    circles: [{ type: Schema.Types.ObjectId, ref: 'Circle' }],
+    circles: [circleSchema],
     //active to decide if the account is verified and active
     active: {type: Boolean},
     //used to check if email verified is correct
@@ -100,7 +100,7 @@ const businessUserSchema = new mongoose.Schema({
     name: {type:String, required:true, unique:true},
     description:{type:String},
     events:[{ type: Schema.Types.ObjectId, ref: 'Event' }],
-    tasks:[{ type: Schema.Types.ObjectId, ref: 'Task' }]
+    tasks:[taskSchema]
 })
 
 // define the users not in the system
@@ -109,7 +109,6 @@ const usernisSchema = new mongoose.Schema({
     fullName:{type:String,required:true},
     personalInfo: infoSchema,
     events: [{ type: Schema.Types.ObjectId, ref: 'Event' }],
-    circles: [{ type: Schema.Types.ObjectId, ref: 'Circle' }]
 })
 
 
