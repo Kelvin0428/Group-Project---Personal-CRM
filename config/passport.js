@@ -9,6 +9,10 @@ const LocalStrategy = require('passport-local').Strategy;
 const { PersonalUser } = require('../models/db');
 const {BusinessUser} = require ('../models/db');
 const {PersonalInfo} = require ('../models/db');
+const {Connection} = require ('../models/db');
+const {CompletedTask} = require ('../models/db');
+const {Task} = require ('../models/db');
+const {Circle} = require('../models/db');
 //JWT set up for authentication
 const passportJWT = require("passport-jwt");
 const JwtStrategy = passportJWT.Strategy;
@@ -195,12 +199,19 @@ module.exports = function(passport) {
                     else{
                         //if username and email are both unique, save the user signup
                         var newUser = new PersonalUser();
+                        var newConnection = new Connection();
+                        var newPersonal = new PersonalInfo();
+                        var newCTask = [new CompletedTask()];
+                        newPersonal.nameFamily = req.body.nameFamily;
+                        newPersonal.nameGiven = req.body.nameGiven;
+                        newUser.connections = newConnection;
                         newUser.userName= userName;
                         // hash password to provide security
-                        newUser.nameFamily = req.body.nameFamily;
-                        newUser.nameGiven = req.body.nameGiven;
+                        newUser.personalInfo = newPersonal;
+                        newUser.completedTask = newCTask;
                         newUser.password = newUser.hashPassword(password);
                         newUser.email = req.body.email;
+   
                         //set initial account activate to false
                         newUser.active = false;
                         //randomise the secretid

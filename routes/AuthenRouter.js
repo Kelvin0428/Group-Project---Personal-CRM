@@ -74,7 +74,7 @@ AuthenRouter.post('/Blogin', async (req, res, next) => {
 });
 
 AuthenRouter.post('/Bsignup', async (req, res, next) => {
-    //utilises the Personallogin authentication method for personal users to log in 
+    //utilises the BUsinesslogin authentication method for business users to log in 
     passport.authenticate('Bsignup', async (errors, Businessuser, message) => {
         try {
 
@@ -118,7 +118,7 @@ AuthenRouter.post('/signup', async (req, res, next) => {
                 to: Personaluser.email,
                 subject: 'Account Verification',
                 //url here needs to be changed to front ends
-                html: "<h1>Welcome to Polar Circle</h1><h2>Please proceed with the below link to activate your account</h2> <a href='http://localhost:8000/authenticate/activate/"+ Personaluser.secretID + "'>Activate</a> "
+                html: "<h1>Welcome to Polar Circle</h1><h2>Please proceed with the below link to activate your account</h2> <a href='http://localhost:3000/activate/"+ Personaluser.secretID + "'>Activate</a> "
             }
 
             //send the mail
