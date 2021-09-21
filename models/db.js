@@ -51,13 +51,6 @@ const taskSchema = new mongoose.Schema({
     status: {type: String, enum:['incomplete','failed','completed']}
 })
 
-
-const completedTaskSchema = new mongoose.Schema({
-    relatedConnection: mongoose.Types.ObjectId,
-    timeStamp:{type:Date}
-})
-
-
 //schema for events, including who hosted the event, who are the attendees
 const eventSchema = new mongoose.Schema({
     eventDate: {type: Date, required:true},
