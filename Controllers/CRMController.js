@@ -49,14 +49,40 @@ const editPersonalInfo = async (req,res) =>{
 // get the connection
 const viewConnections = async (req,res) => {
     try{
-        const user = await PersonalUser.findOne({userName:req.user.userName})
+        const user = await PersonalUser.findOne({userName:req.user.userName}).lean()
         const connection = user.connections
-        res.json(connection)
+        const data = []
+        for(const group in connection){
+            if(group == "cis"){
+                const cis = []
+                for(var person of connection[group]){
+                    var friend = await PersonalUser.findOne({id:person.id})
+                }
+            }else if(group == "cnis"){
+                const cnis = []
+                for(var person of connection[group]){
+                    var friend = await Usernis.findOne({_id:person.id})
+                    cnis.push({
+                        id:friend._id,
+                        name: friend.fullName
+                    })
+                }
+                data.push(cnis)
+            }else{
+                const bc = []
+                for(var person of connection[group]){
+                    var friend = await BusinessUser.findOne({id:person.id})
+                }
+            }
+        }
+        res.json(data)
     }catch(err){
         console.log(err)
     }
 
 }
+
+
 
 // create a user whose not in system and add to connections
 const createUsernis = async (req,res) => {
@@ -264,13 +290,40 @@ const viewCircles = async (req,res) =>{
     }
 }
 
+
 const oneCircle = async (req,res) =>{
     try{
         let circles = (await PersonalUser.findOne({userName:req.user.userName}).lean()).circles
         for(const circle of circles){
             if(circle._id == req.params.id){
-                res.json(circle)
+                let connection = circle.people
+                const data = []
+                for(const group in connection){
+                    if(group == "cis"){
+                        const cis = []
+                        for(var person of connection[group]){
+                            var friend = await PersonalUser.findOne({id:person.id})
+                        }
+                    }else if(group == "cnis"){
+                        const cnis = []
+                        for(var person of connection[group]){
+                            var friend = await Usernis.findOne({_id:person.id})
+                            cnis.push({
+                                id:friend._id,
+                                name: friend.fullName
+                            })
+                        }
+                        data.push(cnis)
+                    }else{
+                        const bc = []
+                        for(var person of connection[group]){
+                            var friend = await BusinessUser.findOne({id:person.id})
+                        }
+                    }
+                }
+                circle.people = data
                 console.log(circle)
+                res.json(circle)
             }else{
                 console.log("can't find circle")
             }
@@ -279,6 +332,9 @@ const oneCircle = async (req,res) =>{
         console.log(err)
     }
 }
+
+
+
 
 const deleteCircle = async (req,res) =>{
     try{
@@ -305,10 +361,9 @@ const removeConnection = async (req,res) =>{
             }
         }
         let changedCircles = user.circles
-        let userSave = await PersonalUser.findOneAndUpdate({userName:req.user.userName},{circles:changedCircles})
-        await userSave.save()
-        console.log(userSave.circles)
-        res.json(userSave.circles)
+        await PersonalUser.findOneAndUpdate({userName:req.user.userName},{circles:changedCircles})
+        console.log(user.circles)
+        res.json(user.circles)
     }catch(err){
         console.log(err)
     }

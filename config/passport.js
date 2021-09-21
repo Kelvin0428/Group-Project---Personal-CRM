@@ -10,6 +10,7 @@ const { PersonalUser } = require('../models/db');
 const {BusinessUser} = require ('../models/db');
 const {PersonalInfo} = require ('../models/db');
 const {Connection} = require ('../models/db');
+const {CompletedTask} = require ('../models/db');
 //JWT set up for authentication
 const passportJWT = require("passport-jwt");
 const JwtStrategy = passportJWT.Strategy;
@@ -197,7 +198,7 @@ module.exports = function(passport) {
                         //if username and email are both unique, save the user signup
                         var newUser = new PersonalUser();
                         var newConnection = new Connection();
-                        newUser.connections = newConnection;
+                        newUser.connections = newConnection;                       
                         newUser.userName= userName;
                         // hash password to provide security
                         newUser.nameFamily = req.body.nameFamily;
