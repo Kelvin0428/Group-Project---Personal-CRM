@@ -19,7 +19,7 @@ CRMRouter.post('/task/edit/:_id',passport.authenticate('jwt',{session: false}),(
 CRMRouter.get('/task/remove/:_id',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.removeTask(req,res))
 CRMRouter.get('/task/complete/:_id',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.completeTask(req,res))
 
-CRMRouter.get('/createCircle',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.createCircle(req,res))
+CRMRouter.post('/createCircle',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.createCircle(req,res))
 CRMRouter.get('/circles',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.viewCircles(req,res))
 CRMRouter.get('/circle/:id',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.oneCircle(req,res))
 
