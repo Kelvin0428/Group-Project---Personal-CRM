@@ -84,9 +84,9 @@ const personalUserSchema = new mongoose.Schema({
     personalInfo: infoSchema,
     completedTask:[completedTaskSchema],
     connections: connectionSchema,
-    tasks: [taskSchema],
+    tasks: [{type: taskSchema, default:null}],
     events: [{ type: Schema.Types.ObjectId, ref: 'Event' }],
-    circles: [circleSchema],
+    circles: [{type: circleSchema, default:null}],
     //active to decide if the account is verified and active
     active: {type: Boolean},
     //used to check if email verified is correct
