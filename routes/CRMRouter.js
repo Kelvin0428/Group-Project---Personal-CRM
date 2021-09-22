@@ -27,4 +27,8 @@ CRMRouter.get('/circle/delete/:id',passport.authenticate('jwt',{session: false})
 
 CRMRouter.post('/circle/:id/removeConnection',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.removeConnection(req,res))
 
+CRMRouter.post('/search', passport.authenticate('jwt',{session:false}),expressValidator.body('tag').isAlpha().optional({checkFalsy: true}),(req,res)=>CRMController.search(req,res))
+
+CRMRouter.post('/ISsearch',passport.authenticate('Bjwt',{session:false}), expressValidator.body('name').isAlpha().optional({checkFalsy: true}),(req,res) => CRMController.ISsearch(req,res))
+
 module.exports = CRMRouter

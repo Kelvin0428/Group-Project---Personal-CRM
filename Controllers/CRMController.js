@@ -122,6 +122,36 @@ const search = async (req, res) => {
 	    }
 }
 
+
+const ISsearch = async (req,res) => {
+	// validate the user input
+	const validationErrors = expressValidator.validationResult(req)
+	    if (!validationErrors.isEmpty() ) {
+		    return res.status(422).render('error', {errorCode: '422', message: 'Search works on alphabet characters only.'})
+	    }
+        var pquery = {}
+        var bquery = {}
+	    if (req.body.userName !== '') {
+		    bquery["name"] = {$regex: new RegExp(req.body.name, 'i') }
+            pquery["userName"] = {$regex: new RegExp(req.body.name, 'i') }
+	    }
+	    try {
+		    const bu = await BusinessUser.find(bquery);
+            const uis = await PersonalUser.find(pquery);
+            let outputB = [];
+            let outputU = []
+            for(let i=0;i<bu.length;i++){
+                outputB.push({id: bu[i]._id, name: bu[i].name});
+            }
+            for(let i=0;i<uis.length;i++){
+                outputU.push({id: uis[i]._id, name:uis[i].userName});
+            }
+            res.send({Business:outputB, Personal:outputU})
+        } catch (err) {
+		    console.log(err)
+	    }
+}
+
 // display all tasks for the user
 const viewTask = async (req,res) =>{
     try{
@@ -317,4 +347,4 @@ const removeConnection = async (req,res) =>{
 
 module.exports = {getPersonInfo,editPersonalInfo,
     viewConnections,createUsernis,getIdentity,viewTask,createTask,oneTask,editTask,removeTask,completeTask,
-    createCircle,viewCircles,oneCircle,deleteCircle,removeConnection}
+    createCircle,viewCircles,oneCircle,deleteCircle,removeConnection,search,ISsearch}
