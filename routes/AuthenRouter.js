@@ -34,7 +34,7 @@ AuthenRouter.post('/login', async (req, res, next) => {
                 //set the cookie
                 res.cookie('jwt',token, { httpOnly: false, sameSite: false, secure: true, domain:"http://localhost:8000"});
                 //set output as token and username
-                const output = {token:token, userName:Personaluser.userName,nameGiven: Personaluser.nameGiven, nameFamily: Personaluser.nameFamily};
+                const output = {token:token, userName:Personaluser.userName,nameGiven: Personaluser.personalInfo.nameGiven, nameFamily: Personaluser.personalInfo.nameFamily,isBusiness:false};
                 return res.status(200).json(output);
             });
         } catch (error) {
@@ -64,7 +64,7 @@ AuthenRouter.post('/Blogin', async (req, res, next) => {
                 //set the cookie
                 res.cookie('jwt',token, { httpOnly: false, sameSite: false, secure: true, domain:"http://localhost:8000"});
                 //set output as token and username
-                const output = {token:token, name:Businessuser.name};
+                const output = {token:token, name:Businessuser.name,isBusiness:true};
                 return res.status(200).json(output);
             });
         } catch (error) {

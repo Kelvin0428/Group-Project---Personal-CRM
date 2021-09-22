@@ -113,6 +113,7 @@ module.exports = function(passport) {
         passwordField : 'password'
     }, async (email, password, done) => {
         try {
+            console.log(email);
             await BusinessUser.findOne({ 'email' :  email }, function(err, user) {
                 if (user && (user.validPassword(password))){
                     return done(null, user, {message: 'Login successful'});
