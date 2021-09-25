@@ -89,22 +89,21 @@ const search = async (req, res) => {
 	    if (req.body.tag !== '') {
 		    query["tag"] = {$regex: new RegExp(req.body.tag, 'i') }
 	    }
-
 	    try {
 		    const nis = await PersonalUser.findOne({userName:req.user.userName})
             let clist = nis.connections.cnis;
+            let islist = nis.connections.cis
             let reg = new RegExp(req.body.tag, 'i')
             console.log(reg);
-            let outputTag = [];
+            let outputnis = [];
             let idlist = [];
-            let outputName=[];
             let foundid = [];
             for(let i=0;i<clist.length;i++){
                 idlist.push(clist[i].id);
                 for(let j=0; j<clist[i].tags.length;j++){
                    if(reg.test(clist[i].tags[j])){
                         const found = await Usernis.findOne({_id: clist[i].id});
-                        await outputTag.push({name:found.fullName, id:found._id, tag:clist[i].tags[j]});
+                        await outputnis.push({name:found.fullName, id:found._id, tag:clist[i].tags[j]});
                         foundid.push(JSON.stringify(found._id))
                         break;
                    }
@@ -113,10 +112,32 @@ const search = async (req, res) => {
             const indis = await Usernis.find().where('_id').in(idlist).exec();      
             for(let i=0;i<indis.length;i++){
                 if(!foundid.includes(JSON.stringify(indis[i]._id)) && reg.test(indis[i].fullName)){
-                    await outputName.push({name:indis[i].fullName,id:indis[i]._id});
+                    await outputnis.push({name:indis[i].fullName,id:indis[i]._id, tag:null});
                 }
             }
-            res.send({tag:outputTag,name:outputName});
+
+            let outputis = [];
+            idlist = [];
+            foundid = [];
+
+            for(let i=0;i<islist.length;i++){
+                idlist.push(islist[i].id);
+                for(let j=0; j<islist[i].tags.length;j++){
+                   if(reg.test(islist[i].tags[j])){
+                        const found = await Usernis.findOne({_id: islist[i].id});
+                        await outputis.push({name:found.fullName, id:found._id, tag:islist[i].tags[j]});
+                        foundid.push(JSON.stringify(found._id))
+                        break;
+                   }
+                }
+            }
+            const nindis = await Usernis.find().where('_id').in(idlist).exec();      
+            for(let i=0;i<nindis.length;i++){
+                if(!foundid.includes(JSON.stringify(nindis[i]._id)) && reg.test(nindis[i].fullName)){
+                    await outputis.push({name:nindis[i].fullName,id:nindis[i]._id, tag:null});
+                }
+            }
+            res.send({inSystem:outputis,notInSystem:outputnis});
 	    } catch (err) {
 		    console.log(err)
 	    }
