@@ -365,7 +365,33 @@ const removeConnection = async (req,res) =>{
     }
 }
 
+const searchQuery = async (req,res)=>{
+    try{
+        let user = await PersonalUser.findOne({userName:req.user.userName});
+        let connectionis = user.connections.cis;
+        let connectionnis = user.connections.cnis;
+        // let businessis = user.connections.bc;
+        let output = [];
+        for(let i=0;i<connectionis.length;i++){
+            let current = {id: connectionis[i].id, type:connectionis[i].accountType, name:null, description:null};
+            let ind = await PersonalUser.findOne({_id: connectionis[i].id});
+            current.name = ind.personalInfo.nameGiven +" " +ind.personalInfo.nameFamily;
+            current.descriptiom= ind.personalInfo.description;
+            output.push(current);
+        }
+        for(let i=0;i<connectionnis.length;i++){
+            let current = {id: connectionnis[i].id, type:connectionnis[i].accountType, name:null, description:null};
+            let ind = await Usernis.findOne({_id: connectionnis[i].id});
+            current.name = ind.fullName;
+            current.description = ind.personalInfo.description;
+            output.push(current);
+        }
+        res.json(output);
 
+    }catch(err){
+        console.log(err)
+    }
+}
 module.exports = {getPersonInfo,editPersonalInfo,
     viewConnections,createUsernis,getIdentity,viewTask,createTask,oneTask,editTask,removeTask,completeTask,
-    createCircle,viewCircles,oneCircle,deleteCircle,removeConnection,search,ISsearch}
+    createCircle,viewCircles,oneCircle,deleteCircle,removeConnection,search,ISsearch,searchQuery}
