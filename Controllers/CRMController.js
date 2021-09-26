@@ -115,22 +115,21 @@ const search = async (req, res) => {
 	    if (req.body.tag !== '') {
 		    query["tag"] = {$regex: new RegExp(req.body.tag, 'i') }
 	    }
-
 	    try {
 		    const nis = await PersonalUser.findOne({userName:req.user.userName})
             let clist = nis.connections.cnis;
+            let islist = nis.connections.cis
             let reg = new RegExp(req.body.tag, 'i')
             console.log(reg);
-            let outputTag = [];
+            let outputnis = [];
             let idlist = [];
-            let outputName=[];
             let foundid = [];
             for(let i=0;i<clist.length;i++){
                 idlist.push(clist[i].id);
                 for(let j=0; j<clist[i].tags.length;j++){
                    if(reg.test(clist[i].tags[j])){
                         const found = await Usernis.findOne({_id: clist[i].id});
-                        await outputTag.push({name:found.fullName, id:found._id, tag:clist[i].tags[j]});
+                        await outputnis.push({name:found.fullName, id:found._id, tag:clist[i].tags[j]});
                         foundid.push(JSON.stringify(found._id))
                         break;
                    }
@@ -139,11 +138,63 @@ const search = async (req, res) => {
             const indis = await Usernis.find().where('_id').in(idlist).exec();      
             for(let i=0;i<indis.length;i++){
                 if(!foundid.includes(JSON.stringify(indis[i]._id)) && reg.test(indis[i].fullName)){
-                    await outputName.push({name:indis[i].fullName,id:indis[i]._id});
+                    await outputnis.push({name:indis[i].fullName,id:indis[i]._id, tag:null});
                 }
             }
-            res.send({tag:outputTag,name:outputName});
+
+            let outputis = [];
+            idlist = [];
+            foundid = [];
+
+            for(let i=0;i<islist.length;i++){
+                idlist.push(islist[i].id);
+                for(let j=0; j<islist[i].tags.length;j++){
+                   if(reg.test(islist[i].tags[j])){
+                        const found = await Usernis.findOne({_id: islist[i].id});
+                        await outputis.push({name:found.fullName, id:found._id, tag:islist[i].tags[j]});
+                        foundid.push(JSON.stringify(found._id))
+                        break;
+                   }
+                }
+            }
+            const nindis = await Usernis.find().where('_id').in(idlist).exec();      
+            for(let i=0;i<nindis.length;i++){
+                if(!foundid.includes(JSON.stringify(nindis[i]._id)) && reg.test(nindis[i].fullName)){
+                    await outputis.push({name:nindis[i].fullName,id:nindis[i]._id, tag:null});
+                }
+            }
+            res.send({inSystem:outputis,notInSystem:outputnis});
 	    } catch (err) {
+		    console.log(err)
+	    }
+}
+
+
+const ISsearch = async (req,res) => {
+	// validate the user input
+	const validationErrors = expressValidator.validationResult(req)
+	    if (!validationErrors.isEmpty() ) {
+		    return res.status(422).render('error', {errorCode: '422', message: 'Search works on alphabet characters only.'})
+	    }
+        var pquery = {}
+        var bquery = {}
+	    if (req.body.userName !== '') {
+		    bquery["name"] = {$regex: new RegExp(req.body.name, 'i') }
+            pquery["userName"] = {$regex: new RegExp(req.body.name, 'i') }
+	    }
+	    try {
+		    const bu = await BusinessUser.find(bquery);
+            const uis = await PersonalUser.find(pquery);
+            let outputB = [];
+            let outputU = []
+            for(let i=0;i<bu.length;i++){
+                outputB.push({id: bu[i]._id, name: bu[i].name});
+            }
+            for(let i=0;i<uis.length;i++){
+                outputU.push({id: uis[i]._id, name:uis[i].userName});
+            }
+            res.send({Business:outputB, Personal:outputU})
+        } catch (err) {
 		    console.log(err)
 	    }
 }
@@ -369,7 +420,33 @@ const removeConnection = async (req,res) =>{
     }
 }
 
+const searchQuery = async (req,res)=>{
+    try{
+        let user = await PersonalUser.findOne({userName:req.user.userName});
+        let connectionis = user.connections.cis;
+        let connectionnis = user.connections.cnis;
+        // let businessis = user.connections.bc;
+        let output = [];
+        for(let i=0;i<connectionis.length;i++){
+            let current = {id: connectionis[i].id, type:connectionis[i].accountType, name:null, description:null};
+            let ind = await PersonalUser.findOne({_id: connectionis[i].id});
+            current.name = ind.personalInfo.nameGiven +" " +ind.personalInfo.nameFamily;
+            current.descriptiom= ind.personalInfo.description;
+            output.push(current);
+        }
+        for(let i=0;i<connectionnis.length;i++){
+            let current = {id: connectionnis[i].id, type:connectionnis[i].accountType, name:null, description:null};
+            let ind = await Usernis.findOne({_id: connectionnis[i].id});
+            current.name = ind.fullName;
+            current.description = ind.personalInfo.description;
+            output.push(current);
+        }
+        res.json(output);
 
+    }catch(err){
+        console.log(err)
+    }
+}
 module.exports = {getPersonInfo,editPersonalInfo,
     viewConnections,createUsernis,getIdentity,viewTask,createTask,oneTask,editTask,removeTask,completeTask,
-    createCircle,viewCircles,oneCircle,deleteCircle,removeConnection}
+    createCircle,viewCircles,oneCircle,deleteCircle,removeConnection,search,ISsearch,searchQuery}
