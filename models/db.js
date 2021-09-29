@@ -47,9 +47,12 @@ const taskSchema = new mongoose.Schema({
     connectionID: mongoose.Types.ObjectId,
     description:{type:String},
     createdDate: {type: Date, required: true,default:Date.now},
-    endDate: {type: Date},
-    status: {type: String, enum:['incomplete','failed','completed']}
+    dueDate: {type:Date},
+    isNotified :{type:Boolean,default:false},
+    wantNotified:{type:Boolean},
+    status: {type: String, enum:['failed','incomplete','completed']}
 })
+
 
 //schema for events, including who hosted the event, who are the attendees
 const eventSchema = new mongoose.Schema({
@@ -109,6 +112,7 @@ const usernisSchema = new mongoose.Schema({
     fullName:{type:String,required:true},
     personalInfo: infoSchema,
     events: [{ type: Schema.Types.ObjectId, ref: 'Event' }],
+    circles: [{ type: Schema.Types.ObjectId, ref: 'Circle' }]
 })
 
 
@@ -129,7 +133,6 @@ businessUserSchema.methods.hashPassword = function(password) {
 businessUserSchema.methods.validPassword = function(password) {
     return bcrypt.compareSync(password, this.password);
 };
-
 
 
 // compile the Schemas into Models
