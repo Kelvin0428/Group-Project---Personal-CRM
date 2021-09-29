@@ -8,7 +8,7 @@ const infoSchema = new mongoose.Schema({
     _id:false,
     nameFamily: {type: String},
     nameGiven: String,
-    DOB: {type: Date},
+    DOB: {type: String},
     gender: {type:String, enum:['Male','Female','Other']},
     address:{type: String}, 
     description:{type: String},
@@ -44,7 +44,7 @@ const taskSchema = new mongoose.Schema({
     connectionID:{type:mongoose.Types.ObjectId},
     //what is the task name
     taskName: {type: String, required:true},
-    //task objective
+    connectionID: mongoose.Types.ObjectId,
     description:{type:String},
     createdDate: {type: Date, required: true,default:Date.now},
     dueDate: {type:Date},
@@ -62,7 +62,7 @@ const completedTaskSchema = new mongoose.Schema({
 
 //schema for events, including who hosted the event, who are the attendees
 const eventSchema = new mongoose.Schema({
-    eventDate: {type: Date, required:true},
+    eventDate: {type: String, required:true},
     description:{type:String},
     eventName:{type:String},
     eventAddress:{type:String},
@@ -73,13 +73,17 @@ const eventSchema = new mongoose.Schema({
 
 //schema for grouping connections based on tags
 const circleSchema = new mongoose.Schema({
-    tags: String,
+    tag: String,
     people: connectionSchema,
     description: {type:String},
     name:{type:String, required:true, default:"Circle"}
 })
 
 
+const completedTaskSchema = new mongoose.Schema({
+    relatedConnection: mongoose.Types.ObjectId,
+    timeStamp: {type:Date}
+})
 
 // define the User schema
 const personalUserSchema = new mongoose.Schema({
@@ -89,20 +93,23 @@ const personalUserSchema = new mongoose.Schema({
     personalInfo: infoSchema,
     completedTask:[completedTaskSchema],
     connections: connectionSchema,
-    tasks: [taskSchema],
+    tasks: [{type: taskSchema, default:null}],
     events: [{ type: Schema.Types.ObjectId, ref: 'Event' }],
-    circles: [circleSchema]
+    circles: [{type: circleSchema, default:null}],
+    //active to decide if the account is verified and active
+    active: {type: Boolean},
+    //used to check if email verified is correct
+    secretID: {type:String}
 })
 
 //define the business user schema
 const businessUserSchema = new mongoose.Schema({
     email: {type: String, required: true, unique: true},
-    userName: {type: String, required: true},
     password: {type: String, required: true},
-    name: {type:String, required:true},
+    name: {type:String, required:true, unique:true},
     description:{type:String},
     events:[{ type: Schema.Types.ObjectId, ref: 'Event' }],
-    tasks:[{ type: Schema.Types.ObjectId, ref: 'Task' }]
+    tasks:[taskSchema]
 })
 
 // define the users not in the system
@@ -124,7 +131,7 @@ personalUserSchema.methods.hashPassword = function(password) {
 personalUserSchema.methods.validPassword = function(password) {
     return bcrypt.compareSync(password, this.password);
 };
-/*
+
 //same but for business users
 businessUserSchema.methods.hashPassword = function(password) {
     return bcrypt.hashSync(password, bcrypt.genSaltSync(10), null);
@@ -132,7 +139,6 @@ businessUserSchema.methods.hashPassword = function(password) {
 businessUserSchema.methods.validPassword = function(password) {
     return bcrypt.compareSync(password, this.password);
 };
-*/
 
 
 // compile the Schemas into Models

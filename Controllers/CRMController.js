@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const { BusinessUser, Circle } = require('../models/db')
 const PersonalUser = mongoose.model('PersonalUser')
 const Friend = mongoose.model('Friend')
 const Usernis = mongoose.model('Usernis')
@@ -6,7 +7,7 @@ const Connection = mongoose.model('Connection')
 const Task = mongoose.model('Task')
 const CompletedTask = mongoose.model('CompletedTask')
 
-
+const expressValidator = require('express-validator')
 // get user's personal information
 const getPersonInfo = async (req,res) => {
     try{
@@ -48,14 +49,40 @@ const editPersonalInfo = async (req,res) =>{
 // get the connection
 const viewConnections = async (req,res) => {
     try{
-        const user = await PersonalUser.findOne({userName:req.user.userName})
+        const user = await PersonalUser.findOne({userName:req.user.userName}).lean()
         const connection = user.connections
-        res.json(connection)
+        const data = []
+        for(const group in connection){
+            if(group == "cis"){
+                const cis = []
+                for(var person of connection[group]){
+                    var friend = await PersonalUser.findOne({id:person.id})
+                }
+            }else if(group == "cnis"){
+                const cnis = []
+                for(var person of connection[group]){
+                    var friend = await Usernis.findOne({_id:person.id})
+                    cnis.push({
+                        id:friend._id,
+                        name: friend.fullName
+                    })
+                }
+                data.push(cnis)
+            }else{
+                const bc = []
+                for(var person of connection[group]){
+                    var friend = await BusinessUser.findOne({id:person.id})
+                }
+            }
+        }
+        res.json(data)
     }catch(err){
         console.log(err)
     }
 
 }
+
+
 
 // create a user whose not in system and add to connections
 const createUsernis = async (req,res) => {
@@ -72,17 +99,110 @@ const createUsernis = async (req,res) => {
         await usernis.save()
         user.connections.cnis.push(people)
         await user.save()
-        res.json(user)
+        res.json(user.connections)
     }catch(err){
         console.log(err)
     }
 }
 
+const search = async (req, res) => { 
+	// validate the user input
+	const validationErrors = expressValidator.validationResult(req)
+	    if (!validationErrors.isEmpty() ) {
+		    return res.status(422).render('error', {errorCode: '422', message: 'Search works on alphabet characters only.'})
+	    }
+	    var query = {}
+	    if (req.body.tag !== '') {
+		    query["tag"] = {$regex: new RegExp(req.body.tag, 'i') }
+	    }
+	    try {
+		    const nis = await PersonalUser.findOne({userName:req.user.userName})
+            let clist = nis.connections.cnis;
+            let islist = nis.connections.cis
+            let reg = new RegExp(req.body.tag, 'i')
+            console.log(reg);
+            let outputnis = [];
+            let idlist = [];
+            let foundid = [];
+            for(let i=0;i<clist.length;i++){
+                idlist.push(clist[i].id);
+                for(let j=0; j<clist[i].tags.length;j++){
+                   if(reg.test(clist[i].tags[j])){
+                        const found = await Usernis.findOne({_id: clist[i].id});
+                        await outputnis.push({name:found.fullName, id:found._id, tag:clist[i].tags[j]});
+                        foundid.push(JSON.stringify(found._id))
+                        break;
+                   }
+                }
+            }
+            const indis = await Usernis.find().where('_id').in(idlist).exec();      
+            for(let i=0;i<indis.length;i++){
+                if(!foundid.includes(JSON.stringify(indis[i]._id)) && reg.test(indis[i].fullName)){
+                    await outputnis.push({name:indis[i].fullName,id:indis[i]._id, tag:null});
+                }
+            }
+
+            let outputis = [];
+            idlist = [];
+            foundid = [];
+
+            for(let i=0;i<islist.length;i++){
+                idlist.push(islist[i].id);
+                for(let j=0; j<islist[i].tags.length;j++){
+                   if(reg.test(islist[i].tags[j])){
+                        const found = await Usernis.findOne({_id: islist[i].id});
+                        await outputis.push({name:found.fullName, id:found._id, tag:islist[i].tags[j]});
+                        foundid.push(JSON.stringify(found._id))
+                        break;
+                   }
+                }
+            }
+            const nindis = await Usernis.find().where('_id').in(idlist).exec();      
+            for(let i=0;i<nindis.length;i++){
+                if(!foundid.includes(JSON.stringify(nindis[i]._id)) && reg.test(nindis[i].fullName)){
+                    await outputis.push({name:nindis[i].fullName,id:nindis[i]._id, tag:null});
+                }
+            }
+            res.send({inSystem:outputis,notInSystem:outputnis});
+	    } catch (err) {
+		    console.log(err)
+	    }
+}
+
+
+const ISsearch = async (req,res) => {
+	// validate the user input
+	const validationErrors = expressValidator.validationResult(req)
+	    if (!validationErrors.isEmpty() ) {
+		    return res.status(422).render('error', {errorCode: '422', message: 'Search works on alphabet characters only.'})
+	    }
+        var pquery = {}
+        var bquery = {}
+	    if (req.body.userName !== '') {
+		    bquery["name"] = {$regex: new RegExp(req.body.name, 'i') }
+            pquery["userName"] = {$regex: new RegExp(req.body.name, 'i') }
+	    }
+	    try {
+		    const bu = await BusinessUser.find(bquery);
+            const uis = await PersonalUser.find(pquery);
+            let outputB = [];
+            let outputU = []
+            for(let i=0;i<bu.length;i++){
+                outputB.push({id: bu[i]._id, name: bu[i].name});
+            }
+            for(let i=0;i<uis.length;i++){
+                outputU.push({id: uis[i]._id, name:uis[i].userName});
+            }
+            res.send({Business:outputB, Personal:outputU})
+        } catch (err) {
+		    console.log(err)
+	    }
+}
 
 // display all tasks for the user
 const viewTask = async (req,res) =>{
     try{
-        const user = await PersonalUser.findOne({userName:"frank"}).lean() //req.user.userName
+        const user = await PersonalUser.findOne({userName:req.user.userName}).lean()
         const tasks = user.tasks
         res.json(tasks)
         console.log(tasks)
@@ -98,11 +218,10 @@ const createTask = async (req,res)=>{
         let task = await new Task({
             taskName:req.body.taskName,
             description: req.body.description,
-            dueDate: req.body.dueDate,
             connectionID:req.body.id,
             status: 'incomplete'
         })
-        let user = await PersonalUser.findOne({userName:"frank"}) // req.user.userName
+        let user = await PersonalUser.findOne({userName:req.user.userName}) 
         await user.tasks.push(task)
         await user.save()
         res.json(user.tasks)
@@ -116,7 +235,7 @@ const createTask = async (req,res)=>{
 // show the single task
 const oneTask = async (req,res)=>{
     try{
-        let user = await PersonalUser.findOne({userName:"frank"}) //req.user.userName
+        let user = await PersonalUser.findOne({userName:req.user.userName}) 
         let task = user.tasks.find(({_id}) => _id == req.params._id)
         res.json(task)
         console.log(task)
@@ -129,7 +248,7 @@ const oneTask = async (req,res)=>{
 // update edited task 
 const editTask = async (req,res)=>{
     try{
-        let user = await PersonalUser.findOne({userName:"frank"}) //req.user.userName
+        let user = await PersonalUser.findOne({userName:req.user.userName})
         let task = user.tasks.find(({_id}) => _id == req.params._id)
         // only update properties that have values
         for(const property in req.body){
@@ -149,7 +268,7 @@ const editTask = async (req,res)=>{
 // remove the task from database
 const removeTask = async (req,res)=>{
     try{
-        let user = await PersonalUser.findOne({userName:"frank"}) //req.user.userName
+        let user = await PersonalUser.findOne({userName:req.user.userName})
         user.tasks.pull({_id:req.params._id})
         await user.save()
         console.log(user.tasks)
@@ -163,9 +282,10 @@ const removeTask = async (req,res)=>{
 // mark the task as complete
 const completeTask = async (req,res)=>{
     try{
-        let user = await PersonalUser.findOne({userName:"frank"}) //req.user.userName
+        let user = await PersonalUser.findOne({userName:req.user.userName})
         let task = user.tasks.find(({_id}) => _id == req.params._id)
         task.status = "completed"
+        task.endDate = Date.now()
         let completeTask = await new CompletedTask({
             relatedConnection:task.connectionID,
             timeStamp:task.endDate
@@ -181,5 +301,152 @@ const completeTask = async (req,res)=>{
 }
 
 
+const createCircle = async (req,res)=>{
+    try{
+        let user =  await PersonalUser.findOne({userName:req.user.userName}).lean()
+        const circleConnection = new Connection({})
+        let connection = user.connections
+        for(var property in connection){
+            let connectionList = connection[property]
+            for(const val in connectionList){
+                if(connectionList[val].tags && (connectionList[val].tags).includes(req.body.tag)){
+                    circleConnection[property].push(connectionList[val])
+                }
+            }
+        }
+        let circle = new Circle({
+            tag: req.body.tag,
+            people: circleConnection,
+            description: req.body.description,
+            name: req.body.name
+        })
+        let userSave = await PersonalUser.findOne({userName:req.user.userName})
+        userSave.circles.push(circle)
+        userSave.save()
+        console.log(userSave.circles)
+        res.json(userSave.circles)
+    }catch(err){
+        console.log(err)
+    }
+}
+
+const viewCircles = async (req,res) =>{
+    try{
+        let circles =  (await PersonalUser.findOne({userName:req.user.userName}).lean()).circles
+        console.log(circles)
+        res.json(circles)
+
+    }catch(err){
+        console.log(err)
+    }
+}
+
+
+const oneCircle = async (req,res) =>{
+    try{
+        let circles = (await PersonalUser.findOne({userName:req.user.userName}).lean()).circles
+        for(const circle of circles){
+            if(circle._id == req.params.id){
+                let connection = circle.people
+                const data = []
+                for(const group in connection){
+                    if(group == "cis"){
+                        const cis = []
+                        for(var person of connection[group]){
+                            var friend = await PersonalUser.findOne({id:person.id})
+                        }
+                    }else if(group == "cnis"){
+                        const cnis = []
+                        for(var person of connection[group]){
+                            var friend = await Usernis.findOne({_id:person.id})
+                            cnis.push({
+                                id:friend._id,
+                                name: friend.fullName
+                            })
+                        }
+                        data.push(cnis)
+                    }else{
+                        const bc = []
+                        for(var person of connection[group]){
+                            var friend = await BusinessUser.findOne({id:person.id})
+                        }
+                    }
+                }
+                circle.people = data
+                console.log(circle)
+                res.json(circle)
+            }else{
+                console.log("can't find circle")
+            }
+        }
+    }catch(err){
+        console.log(err)
+    }
+}
+
+
+
+
+const deleteCircle = async (req,res) =>{
+    try{
+        let user = await PersonalUser.findOne({userName:req.user.userName})
+        let circle = user.circles.find(obj => obj.id == req.params.id)
+        user.circles.pull(circle)
+        user.save()
+        console.log(user.circles)
+        res.json(user.circles)
+    }catch(err){
+        console.log(err)
+    }
+}
+
+const removeConnection = async (req,res) =>{
+    try{
+        let user = await PersonalUser.findOne({userName:req.user.userName}).lean()
+        let people = user.circles.find(circle =>circle._id == req.params.id ).people
+        for(obj in people){
+            for(index in people[obj]){
+                if(people[obj][index].id == req.body.id){
+                    people[obj].splice(index,1)
+                }
+            }
+        }
+        let changedCircles = user.circles
+        await PersonalUser.findOneAndUpdate({userName:req.user.userName},{circles:changedCircles})
+        console.log(user.circles)
+        res.json(user.circles)
+    }catch(err){
+        console.log(err)
+    }
+}
+
+const searchQuery = async (req,res)=>{
+    try{
+        let user = await PersonalUser.findOne({userName:req.user.userName});
+        let connectionis = user.connections.cis;
+        let connectionnis = user.connections.cnis;
+        // let businessis = user.connections.bc;
+        let output = [];
+        for(let i=0;i<connectionis.length;i++){
+            let current = {id: connectionis[i].id, type:connectionis[i].accountType, name:null, description:null};
+            let ind = await PersonalUser.findOne({_id: connectionis[i].id});
+            current.name = ind.personalInfo.nameGiven +" " +ind.personalInfo.nameFamily;
+            current.descriptiom= ind.personalInfo.description;
+            output.push(current);
+        }
+        for(let i=0;i<connectionnis.length;i++){
+            let current = {id: connectionnis[i].id, type:connectionnis[i].accountType, name:null, description:null};
+            let ind = await Usernis.findOne({_id: connectionnis[i].id});
+            current.name = ind.fullName;
+            current.description = ind.personalInfo.description;
+            output.push(current);
+        }
+        res.json(output);
+
+    }catch(err){
+        console.log(err)
+    }
+}
 module.exports = {getPersonInfo,editPersonalInfo,
-    viewConnections,createUsernis,getIdentity,viewTask,createTask,oneTask,editTask,removeTask,completeTask}
+    viewConnections,createUsernis,getIdentity,viewTask,createTask,oneTask,editTask,removeTask,completeTask,
+    createCircle,viewCircles,oneCircle,deleteCircle,removeConnection,search,ISsearch,searchQuery}

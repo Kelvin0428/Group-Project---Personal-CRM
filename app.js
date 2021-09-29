@@ -23,7 +23,8 @@ app.use(express.static('public'))
 
 app.use(cors({
   credentials: true, 
-  origin: "http://localhost:3000" 
+  //origin: "http://localhost:3000" 
+  origin: "https://it-pol.herokuapp.com"
 }));
 
 app.use(session({ secret: process.env.PASSPORT_KEY,
@@ -38,8 +39,10 @@ app.use(passport.session());
 //set up CRM routes
 const CRMRouter = require('./routes/CRMRouter.js')
 const AuthenRouter = require('./routes/AuthenRouter.js')
+const BusinessRouter = require('./routes/BusinessRouter.js')
 app.use('/', CRMRouter);
 app.use('/authenticate',AuthenRouter)
+app.use('/business',BusinessRouter);
 
 app.all('*', (req, res) => {res.send('Invalid Route')})
 
