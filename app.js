@@ -47,6 +47,37 @@ app.use('/business',BusinessRouter);
 app.all('*', (req, res) => {res.send('Invalid Route')})
 
 
+
+var nodemailer = require('nodemailer');
+const mongoose = require('mongoose')
+const PersonalUser = mongoose.model('PersonalUser')
+const cron = require('node-cron');
+
+cron.schedule('* * * * *', async function(){
+  const users = await PersonalUser.find();
+  for(let i=0;i<users.length;i++){
+    let tasks = users[i].tasks;
+    console.log('new User');
+    for(let j=0;j<tasks.length;j++){
+      //tasks[j].wantNotify == true && tasks[j].isNotified == false && 
+      console.log(tasks);
+      if(tasks[j].status != 'completed'){
+        console.log('new Task');
+        console.log(tasks[j]);
+  
+        var currentTime = new Date();
+        var endTime = tasks[j].dueDate;
+        console.log(currentTime);
+        console.log(tasks[j].dueDate);
+        var timeDif = currentTime.getTime() - endTime.getTime();
+        var daysDif = timeDif / (1000 * 3600 * 24);
+        console.log(daysDif);
+      }
+    }
+  }
+})
+
+
 // listening on Port address if active, or else on local host 8000
 app.listen(process.env.PORT || 8000, () => {
   console.log("Connected")
