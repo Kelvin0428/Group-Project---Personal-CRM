@@ -219,6 +219,8 @@ const createTask = async (req,res)=>{
             taskName:req.body.taskName,
             description: req.body.description,
             connectionID:req.body.id,
+            dueDate:req.body.dueDate,
+            wantNotified:req.body.wantNotified,
             status: 'incomplete'
         })
         let user = await PersonalUser.findOne({userName:req.user.userName}) 
@@ -285,10 +287,9 @@ const completeTask = async (req,res)=>{
         let user = await PersonalUser.findOne({userName:req.user.userName})
         let task = user.tasks.find(({_id}) => _id == req.params._id)
         task.status = "completed"
-        task.endDate = Date.now()
         let completeTask = await new CompletedTask({
             relatedConnection:task.connectionID,
-            timeStamp:task.endDate
+            timeStamp:task.dueDate
         })
         user.completedTask.push(completeTask)
         await user.save()

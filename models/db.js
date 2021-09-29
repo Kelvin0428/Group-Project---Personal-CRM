@@ -48,15 +48,9 @@ const taskSchema = new mongoose.Schema({
     description:{type:String},
     createdDate: {type: Date, required: true,default:Date.now},
     dueDate: {type:Date},
-    isNotified :{type:Boolean},
+    isNotified :{type:Boolean,default:false},
     wantNotified:{type:Boolean},
     status: {type: String, enum:['failed','incomplete','completed']}
-})
-
-
-const completedTaskSchema = new mongoose.Schema({
-    relatedConnection: mongoose.Types.ObjectId,
-    timeStamp:{type:Date}
 })
 
 
