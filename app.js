@@ -24,7 +24,7 @@ app.use(express.static('public'))
 app.use(cors({
   credentials: true, 
   //origin: "http://localhost:3000" 
-  origin: "https://it-pol.herokuapp.com/login"
+  origin: "https://it-pol.herokuapp.com"
 }));
 
 app.use(session({ secret: process.env.PASSPORT_KEY,
