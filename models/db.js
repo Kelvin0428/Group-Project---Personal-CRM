@@ -47,8 +47,10 @@ const taskSchema = new mongoose.Schema({
     //task objective
     description:{type:String},
     createdDate: {type: Date, required: true,default:Date.now},
-    endDate: {type: Date},
-    status: {type: String, enum:['draft','incomplete','completed']}
+    dueDate: {type:Date},
+    isNotified :{type:Boolean},
+    wantNotified:{type:Boolean},
+    status: {type: String, enum:['failed','incomplete','completed']}
 })
 
 
