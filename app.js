@@ -68,16 +68,46 @@ cron.schedule('* * * * *', async function(){
         var endTime = tasks[j].dueDate;
         var timeDif = endTime.getTime() - startTime.getTime();
         var daysDif = timeDif / (1000 * 3600 * 24);
+        var timeLeft = endTime.getTime() - currentTime.getTime();
+        var daysLeft = Math.ceil(timeLeft / (1000 * 3600 * 24))
         //the number here (currently 0) is the minimun days where the user received email, ex. task created today, set to due tomorrow,
         //user will receive mail today
         if(daysDif >= 0){
           let notifyDays  = Math.floor(daysDif * 0.8);
-          var notifyDate = new Date(currentTime);
+          var notifyDate = new Date(startTime);
           notifyDate.setDate(notifyDate.getDate() + notifyDays);
           if(notifyDate <= currentTime){
+            console.log('email sent')
             console.log(notifyDate);
             console.log(currentTime);
-            console.log('send email');
+            var transporter = nodemailer.createTransport({
+              service: 'gmail',
+              auth:{
+                  user: 'polarcirclecrm@gmail.com',
+                  pass: 'paralleloflatitude'
+              }
+          });
+          //set up mail details, the recipient and content
+          var mailDetails = {
+              from: 'polarcirclecrm@gmail.com',
+              to: users[i].email,
+              subject: 'Task: ' + tasks[j].taskName + ' Notification',
+              html: "<h1>Task: " + tasks[j].taskName + " Notification</h1><h2>Reminder that you have " + daysLeft + " days left on your task </h2> "
+          }
+
+          //send the mail
+          transporter.sendMail(mailDetails, function(error, info){
+              if(error){
+                  console.log(error);
+              }else{
+                  res.send('Password reset email sent');
+                  console.log('Email sent:' + info.response)
+              }
+          })
+          console.log(tasks[j].isNotified);
+          users[i].tasks[j].isNotified = true; 
+          await users[i].save();
+          console.log(tasks[j].isNotified);
           }else{
             console.log('not yet');
             console.log(notifyDate);
