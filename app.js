@@ -53,33 +53,37 @@ const mongoose = require('mongoose')
 const PersonalUser = mongoose.model('PersonalUser')
 const cron = require('node-cron');
 
-cron.schedule('* * * * *', async function(){
+//the following code executes at 00:00 per day
+cron.schedule('0 0 */1 * *', async function(){
   const users = await PersonalUser.find();
+  //for all users, check their respective tasks, and send email if guards are met
   for(let i=0;i<users.length;i++){
     let tasks = users[i].tasks;
-    console.log('new User');
     for(let j=0;j<tasks.length;j++){
-      //tasks[j].wantNotify == true && tasks[j].isNotified == false && 
+      //it the tasks is already completed, or users dont want notification, or it is already notified, then dont send the email
       if(tasks[j].status != 'completed' && tasks[j].wantNotified == true && tasks[j].isNotified == false){
-        console.log('new Task');
-        console.log(tasks[j]);
         var currentTime = new Date();
         var startTime = tasks[j].createdDate;
         var endTime = tasks[j].dueDate;
         var timeDif = endTime.getTime() - startTime.getTime();
+        //the number of days from when the task is made and its due date
         var daysDif = timeDif / (1000 * 3600 * 24);
+        //number of days left from current time to due date
         var timeLeft = endTime.getTime() - currentTime.getTime();
         var daysLeft = Math.ceil(timeLeft / (1000 * 3600 * 24))
         //the number here (currently 0) is the minimun days where the user received email, ex. task created today, set to due tomorrow,
         //user will receive mail today
         if(daysDif >= 0){
+          // notify the date when 80% of the time has passed. for example, in a task with 7 days, at the 5th day an email will be sent
           let notifyDays  = Math.floor(daysDif * 0.8);
           var notifyDate = new Date(startTime);
           notifyDate.setDate(notifyDate.getDate() + notifyDays);
+          //if when you are suppose to notify is earlier than current time, then send the email
           if(notifyDate <= currentTime){
             console.log('email sent')
             console.log(notifyDate);
             console.log(currentTime);
+            //sending the eail
             var transporter = nodemailer.createTransport({
               service: 'gmail',
               auth:{
@@ -104,15 +108,16 @@ cron.schedule('* * * * *', async function(){
                   console.log('Email sent:' + info.response)
               }
           })
-          console.log(tasks[j].isNotified);
+          // set the task to notified, so a notification email doesnt get sent again, this can be changed so that a notification email gets sent each day
+          //after the 80% mark
           users[i].tasks[j].isNotified = true; 
           await users[i].save();
-          console.log(tasks[j].isNotified);
           }else{
             console.log('not yet');
             console.log(notifyDate);
             console.log(currentTime);
           }
+        //if the difference in days is less than the guard, then we aren't able to send notification emails
         }else{
           console.log("I cant travel back in time");
         }
