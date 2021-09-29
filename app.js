@@ -60,18 +60,32 @@ cron.schedule('* * * * *', async function(){
     console.log('new User');
     for(let j=0;j<tasks.length;j++){
       //tasks[j].wantNotify == true && tasks[j].isNotified == false && 
-      console.log(tasks);
-      if(tasks[j].status != 'completed'){
+      if(tasks[j].status != 'completed' && tasks[j].wantNotified == true && tasks[j].isNotified == false){
         console.log('new Task');
         console.log(tasks[j]);
-  
         var currentTime = new Date();
+        var startTime = tasks[j].createdDate;
         var endTime = tasks[j].dueDate;
-        console.log(currentTime);
-        console.log(tasks[j].dueDate);
-        var timeDif = currentTime.getTime() - endTime.getTime();
+        var timeDif = endTime.getTime() - startTime.getTime();
         var daysDif = timeDif / (1000 * 3600 * 24);
-        console.log(daysDif);
+        //the number here (currently 0) is the minimun days where the user received email, ex. task created today, set to due tomorrow,
+        //user will receive mail today
+        if(daysDif >= 0){
+          let notifyDays  = Math.floor(daysDif * 0.8);
+          var notifyDate = new Date(currentTime);
+          notifyDate.setDate(notifyDate.getDate() + notifyDays);
+          if(notifyDate <= currentTime){
+            console.log(notifyDate);
+            console.log(currentTime);
+            console.log('send email');
+          }else{
+            console.log('not yet');
+            console.log(notifyDate);
+            console.log(currentTime);
+          }
+        }else{
+          console.log("I cant travel back in time");
+        }
       }
     }
   }
