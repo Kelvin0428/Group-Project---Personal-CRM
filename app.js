@@ -54,14 +54,15 @@ const PersonalUser = mongoose.model('PersonalUser')
 const cron = require('node-cron');
 
 //the following code executes at 00:00 per day
-cron.schedule('0 0 */1 * *', async function(){
+cron.schedule('* * */1 * *', async function(){
   const users = await PersonalUser.find();
   //for all users, check their respective tasks, and send email if guards are met
   for(let i=0;i<users.length;i++){
     let tasks = users[i].tasks;
     for(let j=0;j<tasks.length;j++){
+      console.log(tasks[j]);
       //it the tasks is already completed, or users dont want notification, or it is already notified, then dont send the email
-      if(tasks[j].status != 'completed' && tasks[j].wantNotified == true && tasks[j].isNotified == false){
+      if(tasks[j].status != 'completed' && tasks[j].highlight == false){
         var currentTime = new Date();
         var startTime = tasks[j].createdDate;
         var endTime = tasks[j].dueDate;
@@ -81,7 +82,7 @@ cron.schedule('0 0 */1 * *', async function(){
           var notifyDate = new Date(startTime);
           notifyDate.setDate(notifyDate.getDate() + notifyDays);
           //if when you are suppose to notify is earlier than current time, then send the email
-          if(notifyDate <= currentTime){
+          if(notifyDate <= currentTime && tasks[j].wantNotified == true && tasks[j].isNotified == false){
             console.log(notifyDate);
             //sending the eail
             var transporter = nodemailer.createTransport({
@@ -110,11 +111,18 @@ cron.schedule('0 0 */1 * *', async function(){
             })
             // set the task to notified, so a notification email doesnt get sent again, this can be changed so that a notification email gets sent each day
             //after the 80% mark
+            users[i].tasks[j].highlight = true;
             users[i].tasks[j].isNotified = true; 
             await users[i].save();
+          }else if (notifyDate <= currentTime && tasks[j].wantNotified == false){
+            users[i].tasks[j].highlight = true;
+            await users[i].save();
+
           }else{
             // do not send the email as the time is not reached yet
             console.log('not yet');
+            console.log(notifyDate)
+            console.log(currentTime);
           }
         //if the difference in days is less than the guard, then we aren't able to send notification emails
         }else{
