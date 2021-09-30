@@ -9,6 +9,8 @@ const CRMRouter = express.Router()
 CRMRouter.get('/Pinfo',passport.authenticate('jwt',{session: false}), (req,res) =>CRMController.getPersonInfo(req,res))
 CRMRouter.post('/updateInfo',passport.authenticate('jwt',{session: false}),(req,res) =>CRMController.editPersonalInfo(req,res))
 CRMRouter.get('/connections',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.viewConnections(req,res))
+CRMRouter.get('/connection/:_id',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.connectionProfile(req,res))
+
 CRMRouter.post('/createUser',passport.authenticate('jwt',{session: false}),(req,res)=> CRMController.createUsernis(req,res))
 CRMRouter.get('/userName',passport.authenticate('jwt',{session: false}),(req,res)=> CRMController.getIdentity(req,res))
 
@@ -32,4 +34,11 @@ CRMRouter.post('/search', passport.authenticate('jwt',{session:false}),expressVa
 CRMRouter.post('/ISsearch',passport.authenticate('Bjwt',{session:false}), expressValidator.body('name').isAlpha().optional({checkFalsy: true}),(req,res) => CRMController.ISsearch(req,res))
 
 CRMRouter.get('/searchQuery',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.searchQuery(req,res))
+
+CRMRouter.post('/createEvent',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.createEvent(req,res))
+CRMRouter.get('/events',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.viewEvents(req,res))
+CRMRouter.get('/event/:_id',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.oneEvent(req,res))
+CRMRouter.post('/event/edit/:_id',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.editEvent(req,res))
+CRMRouter.get('/event/delete/:_id',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.deleteEvent(req,res))
+
 module.exports = CRMRouter

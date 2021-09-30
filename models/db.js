@@ -41,13 +41,12 @@ connectionSchema = new mongoose.Schema({
 //schema for storing tasks
 const taskSchema = new mongoose.Schema({
     _id:{type:mongoose.Types.ObjectId,auto:true},
-    connectionID:{type:mongoose.Types.ObjectId},
     //what is the task name
     taskName: {type: String, required:true},
     connectionID: mongoose.Types.ObjectId,
     description:{type:String},
     createdDate: {type: Date, required: true,default:Date.now},
-    dueDate: {type:Date},
+    dueDate: {type:Date,require:true},
     isNotified :{type:Boolean,default:false},
     wantNotified:{type:Boolean},
     status: {type: String, enum:['failed','incomplete','completed']}

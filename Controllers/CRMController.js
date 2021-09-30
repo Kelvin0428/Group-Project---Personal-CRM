@@ -6,6 +6,7 @@ const Usernis = mongoose.model('Usernis')
 const Connection = mongoose.model('Connection')
 const Task = mongoose.model('Task')
 const CompletedTask = mongoose.model('CompletedTask')
+const Event = mongoose.model('Event')
 
 const expressValidator = require('express-validator')
 // get user's personal information
@@ -80,6 +81,25 @@ const viewConnections = async (req,res) => {
         console.log(err)
     }
 
+}
+
+
+const connectionProfile = async (req,res)=>{
+    try{
+        const unis = await Usernis.findOne({_id:req.params._id}).lean()
+        const user = await PersonalUser.findOne({userName:req.user.userName}).lean()
+        const connections = user.connections.cnis
+        let data = {}
+        for(var person of connections){
+            if(person.id == req.params._id){
+                data = Object.assign(person,unis)
+                console.log(data)
+            }
+        }
+        res.json(data)
+    }catch(err){
+        console.log(err)
+    }
 }
 
 
@@ -214,11 +234,13 @@ const viewTask = async (req,res) =>{
 // create the task and add to user's tasks array 
 const createTask = async (req,res)=>{
     try{
+        let unis = await Usernis.findOne({fullName:req.body.name})
+        let id = unis._id
         // created date is default of current time
         let task = await new Task({
             taskName:req.body.taskName,
             description: req.body.description,
-            connectionID:req.body.id,
+            connectionID:id,
             dueDate:req.body.dueDate,
             wantNotified:req.body.wantNotified,
             status: 'incomplete'
@@ -448,6 +470,117 @@ const searchQuery = async (req,res)=>{
         console.log(err)
     }
 }
+
+const createEvent = async (req,res) =>{
+    try{
+        const user = await PersonalUser.findOne({userName:req.user.userName})
+        const event = new Event({
+            eventDate:req.body.eventDate,
+            description: req.body.description,
+            eventName: req.body.eventName,
+            eventAddress: req.body.eventAddress,
+            host: user.personalInfo.nameGiven+" "+user.personalInfo.nameFamily,
+            hostId:user._id,
+            attendee: new Usernis()
+        })
+        const cnis = user.connections.cnis
+        for(var people of req.body.attendee){
+            const unis = await Usernis.findOne({fullName:people})
+            unis.events.push(event._id)
+            unis.save()
+            for(var friend of cnis){
+                if(friend.id.equals(unis._id)){
+                    event.attendee.cnis.push(friend)
+                }
+            }
+        }
+        console.log(event)
+        await event.save()
+        user.events.push(event._id)
+        await user.save()
+        // redirect to event page
+        res.json("create successful")
+    }catch(err){
+        console.log(err)
+    }
+}
+
+
+
+const viewEvents = async (req,res) =>{
+    try{
+        const user = await PersonalUser.findOne({userName:req.user.userName})
+        const events = await Event.find({hostId:user._id})
+        console.log(events)
+        res.json(events)
+    }catch(err){
+        console.log(err)
+    }
+}
+
+const oneEvent = async (req,res)=>{
+    try{
+        const event = await Event.findOne({_id:req.params._id}).lean()
+        const people = event.attendee
+        const attendees = []
+        for(const group in people){
+            if(group == "cis"){
+                const cis = []
+                for(var person of people[group]){
+                    var friend = await PersonalUser.findOne({id:person.id})
+                }
+            }else if(group == "cnis"){
+                const cnis = []
+                for(var person of people[group]){
+                    var friend = await Usernis.findOne({_id:person.id})
+                    cnis.push({
+                        id:friend._id,
+                        name: friend.fullName
+                    })
+                }
+                attendees.push(cnis)
+            }else{
+                const bc = []
+                for(var person of people[group]){
+                    var friend = await BusinessUser.findOne({id:person.id})
+                }
+            }
+        }
+        event.attendee = attendees
+        res.json(event)
+    }catch(err){
+        console.log(err)
+    }
+}
+
+const editEvent = async (req,res)=>{
+    try{
+        const event = await Event.findOne({_id:req.params._id})
+        for(const property in req.body){
+            if(req.body[property]){
+                event[property] = req.body[property]
+            }
+        }
+        event.save()
+        res.json(event)
+    }catch(err){
+        console.log(err)
+    }
+}
+
+const deleteEvent = async (req,res)=>{
+    try{
+        await Event.findOneAndDelete({_id:req.params._id})
+        //return to event page
+        res.json("delete successful")
+    }catch(err){
+        console.log(err)
+    }
+}
+
+
+
 module.exports = {getPersonInfo,editPersonalInfo,
-    viewConnections,createUsernis,getIdentity,viewTask,createTask,oneTask,editTask,removeTask,completeTask,
-    createCircle,viewCircles,oneCircle,deleteCircle,removeConnection,search,ISsearch,searchQuery}
+    viewConnections,connectionProfile,createUsernis,getIdentity,viewTask,createTask,oneTask,editTask,removeTask,completeTask,
+    createCircle,viewCircles,oneCircle,deleteCircle,removeConnection,search,ISsearch,searchQuery,createEvent,
+    viewEvents,oneEvent,editEvent,deleteEvent }
