@@ -93,6 +93,7 @@ AuthenRouter.post('/sendForget', (req,res)=>AuthenController.sendForget(req,res)
 
 AuthenRouter.post('/forgetPassword/:id', (req,res) => AuthenController.forgetPassword(req,res));
 
+AuthenRouter.get('/deleteAccount',passport.authenticate('jw'))
 AuthenRouter.post('/resetPassword',passport.authenticate('jwt',{session: false}), (req,res)=> AuthenController.resetPassword(req,res));
 //handling login requests
 AuthenRouter.post('/signup', async (req, res, next) => {
@@ -123,7 +124,7 @@ AuthenRouter.post('/signup', async (req, res, next) => {
             //send the mail
             transporter.sendMail(mailDetails, function(error, info){
                 if(error){
-                    console.log(error);
+                    return res.status(200).send(message)
                 }else{
                     console.log('Email sent:' + info.response)
                 }
