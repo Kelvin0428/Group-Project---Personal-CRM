@@ -486,14 +486,16 @@ const createEvent = async (req,res) =>{
         const cnis = user.connections.cnis
         for(var people of req.body.attendee){
             const unis = await Usernis.findOne({fullName:people})
+            console.log(people)
             unis.events.push(event._id)
-            unis.save()
+            await unis.save()
             for(var friend of cnis){
                 if(friend.id.equals(unis._id)){
                     event.attendee.cnis.push(friend)
                 }
             }
         }
+
         console.log(event)
         await event.save()
         user.events.push(event._id)
@@ -561,7 +563,7 @@ const editEvent = async (req,res)=>{
                 event[property] = req.body[property]
             }
         }
-        event.save()
+        await event.save()
         res.json(event)
     }catch(err){
         console.log(err)
@@ -570,6 +572,24 @@ const editEvent = async (req,res)=>{
 
 const deleteEvent = async (req,res)=>{
     try{
+        const event = await Event.findOne({_id:req.params._id})
+        const user = await PersonalUser.findOne({userName:req.user.userName})
+        for(let eventID of user.events){
+            if(eventID.equals(req.params._id)){
+                user.events.pull(eventID)
+            }
+        }
+        await user.save()
+        for(let people of event.attendee.cnis){
+            const unis = await Usernis.findOne(people.id)
+            for(let eventID of unis.events){
+                if(eventID.equals(req.params._id)){
+                    unis.events.pull(eventID)
+                    await unis.save()
+                }
+            }
+        }
+
         await Event.findOneAndDelete({_id:req.params._id})
         //return to event page
         res.json("delete successful")
@@ -579,8 +599,31 @@ const deleteEvent = async (req,res)=>{
 }
 
 
+const removeAttendee = async (req,res) =>{
+    try{
+        const event = await Event.findOne({_id:req.params._id})
+        for(let people of event.attendee.cnis){
+            if(req.body.id == people.id){
+                event.attendee.cnis.pull(people)
+            }
+        }
+        const unis = await Usernis.findOne({_id:req.body.id})
+        for(let event of unis.events){
+            if(event.equals(req.params._id)){
+                unis.events.pull(event)
+            }
+        }
+        await event.save()
+        await unis.save()
+        //redirect to event page
+        res.json("remove successful")
+    }catch(err){
+
+    }
+}
+
 
 module.exports = {getPersonInfo,editPersonalInfo,
     viewConnections,connectionProfile,createUsernis,getIdentity,viewTask,createTask,oneTask,editTask,removeTask,completeTask,
     createCircle,viewCircles,oneCircle,deleteCircle,removeConnection,search,ISsearch,searchQuery,createEvent,
-    viewEvents,oneEvent,editEvent,deleteEvent }
+    viewEvents,oneEvent,editEvent,deleteEvent,removeAttendee }

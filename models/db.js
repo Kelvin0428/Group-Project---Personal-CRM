@@ -55,7 +55,7 @@ const taskSchema = new mongoose.Schema({
 
 //schema for events, including who hosted the event, who are the attendees
 const eventSchema = new mongoose.Schema({
-    eventDate: {type: String, required:true},
+    eventDate: {type: Date, required:true},
     description:{type:String},
     eventName:{type:String},
     eventAddress:{type:String},
@@ -87,7 +87,7 @@ const personalUserSchema = new mongoose.Schema({
     completedTask:[completedTaskSchema],
     connections: connectionSchema,
     tasks: [{type: taskSchema, default:null}],
-    events: [{ type: Schema.Types.ObjectId, ref: 'Event' }],
+    events: [{ type: Schema.Types.ObjectId, ref: 'Event' ,default:[]}],
     circles: [{type: circleSchema, default:null}],
     //active to decide if the account is verified and active
     active: {type: Boolean},

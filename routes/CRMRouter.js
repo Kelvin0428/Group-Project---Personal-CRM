@@ -40,5 +40,6 @@ CRMRouter.get('/events',passport.authenticate('jwt',{session: false}),(req,res)=
 CRMRouter.get('/event/:_id',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.oneEvent(req,res))
 CRMRouter.post('/event/edit/:_id',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.editEvent(req,res))
 CRMRouter.get('/event/delete/:_id',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.deleteEvent(req,res))
+CRMRouter.post('/event/:_id/removeAttendee',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.removeAttendee(req,res))
 
 module.exports = CRMRouter
