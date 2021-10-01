@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 const { BusinessUser, Circle } = require('../models/db')
-const PersonalUser = mongoose.model('PersonalUser')
+const { PersonalUser } = require('../models/db');
 const Friend = mongoose.model('Friend')
 const Usernis = mongoose.model('Usernis')
 const Connection = mongoose.model('Connection')

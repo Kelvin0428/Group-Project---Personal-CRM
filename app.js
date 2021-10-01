@@ -138,3 +138,4 @@ cron.schedule('* * */1 * *', async function(){
 app.listen(process.env.PORT || 8000, () => {
   console.log("Connected")
 })
+module.exports = app
