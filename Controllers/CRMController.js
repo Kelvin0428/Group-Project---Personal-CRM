@@ -205,7 +205,7 @@ const viewTask = async (req,res) =>{
         const user = await PersonalUser.findOne({userName:req.user.userName}).lean()
         const tasks = user.tasks
         res.json(tasks)
-        console.log(tasks)
+
     }catch(err){
         console.log(err)
     }

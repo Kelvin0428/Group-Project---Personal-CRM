@@ -1,13 +1,13 @@
-//node mailer test code inspired from  https://stackoverflow.com/questions/53420562/mock-nodemailer-createtransport-sendmail-with-jest 
+//node mailer test code adapted from  https://stackoverflow.com/questions/53420562/mock-nodemailer-createtransport-sendmail-with-jest 
 
 const request = require('supertest');
 const app = require('../../app'); 
 jest.setTimeout(30000)
 
-const sendMailMock = jest.fn(); 
+const MockMailer = jest.fn(); 
 jest.mock("nodemailer");
 const nodemailer = require("nodemailer"); 
-nodemailer.createTransport.mockReturnValue({"sendMail": sendMailMock});
+nodemailer.createTransport.mockReturnValue({"sendMail":MockMailer});
 beforeEach( () => {
     MockMailer.mockClear();
     nodemailer.createTransport.mockClear();
@@ -17,7 +17,7 @@ describe("Signup", () => {
         let email = "ka@gmail.com"
         const response = await request(app)
             .post("/authenticate/signup")
-            .send({ userName:"beeboooop",password:"testing",email: "kaar@gmail.com",nameGiven:"Givnet",nameFamily:"family" })
+            .send({ userName:"beebooooop",password:"testing",email: "l",nameGiven:"Givnet",nameFamily:"family" })
             .set("Accept", "application/json")
         expect(response.status).toBe(200);
         expect(MockMailer).toHaveBeenCalled();

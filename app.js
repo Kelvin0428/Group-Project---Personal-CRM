@@ -135,7 +135,9 @@ cron.schedule('* * */1 * *', async function(){
 
 
 // listening on Port address if active, or else on local host 8000
-app.listen(process.env.PORT || 8000, () => {
+//the guard is to prevent listen EADDRINUSE: address already in use :: 8000 issue
+if(process.env.NODE_ENV != 'test'){
+  app.listen(process.env.PORT || 8000, () => {
   console.log("Connected")
-})
+})}
 module.exports = app
