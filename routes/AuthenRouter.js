@@ -22,7 +22,6 @@ AuthenRouter.post('/login', async (req, res, next) => {
             if(errors || !Personaluser){
                 return res.status(200).send(message)
             }
-            console.log(Personaluser);
             //login to the user
             req.login(Personaluser, { session : false }, async (error) => {
                 if(error){
