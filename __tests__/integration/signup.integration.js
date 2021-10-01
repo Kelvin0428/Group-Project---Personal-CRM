@@ -1,45 +1,57 @@
+//node mailer test code inspired from  https://stackoverflow.com/questions/53420562/mock-nodemailer-createtransport-sendmail-with-jest 
 
-// supertest allows us to send HTTP requests to our app
-// install it: npm install supertest --save-dev
 const request = require('supertest');
+const app = require('../../app'); 
+jest.setTimeout(30000)
 
-// since this file is inside __test__/integration folder, we will
-// need to go back two levels ('../../') to get to the root folder
-// and then we import our app (from app.js)
-// IMPORTANT: make sure your export your app in app.js .e.g.
-// module.exports = app
-const app = require('../../app'); // the express server
-
-const sendMailMock = jest.fn(); // this will return undefined if .sendMail() is called
-
-// In order to return a specific value you can use this instead
-// const sendMailMock = jest.fn().mockReturnValue(/* Whatever you would expect as return value */);
-
+const sendMailMock = jest.fn(); 
 jest.mock("nodemailer");
-
-const nodemailer = require("nodemailer"); //doesn't work with import. idk why
+const nodemailer = require("nodemailer"); 
 nodemailer.createTransport.mockReturnValue({"sendMail": sendMailMock});
-
 beforeEach( () => {
-    sendMailMock.mockClear();
+    MockMailer.mockClear();
     nodemailer.createTransport.mockClear();
 });
-jest.setTimeout(30000)
-describe("", () => {
-
-    test("", async () => {
-        // 1 - 200 status code; 2 - check email was sent
+describe("Signup", () => {
+    test("Integration Test: Send Acitvation Mail", async () => {
         let email = "ka@gmail.com"
         const response = await request(app)
             .post("/authenticate/signup")
-            // global variable
             .send({ userName:"beeboooop",password:"testing",email: "kaar@gmail.com",nameGiven:"Givnet",nameFamily:"family" })
             .set("Accept", "application/json")
-
-        // should complete successfully
         expect(response.status).toBe(200);
-
-        // TODO not sure how to express the expect statement here
-        expect(sendMailMock).toHaveBeenCalled();
+        expect(MockMailer).toHaveBeenCalled();
     });
+});
+
+
+let token;
+beforeAll((done) => {
+    request(app)
+      .post('/authenticate/login')
+      .send({
+        userName: "kaerwyn",
+        password: "test",
+      })
+      .end((err, response) => {
+        token = response.body.token; 
+        done();
+      });
+  });
+
+describe('Integration test: Login & following features', () => {
+    let agent = request.agent(app);
+    console.log(token);
+    test('Test 1 reset password', () => {
+      return agent
+        .post('/authenticate/resetPassword')
+        .send({currentPassword:"test",newPassword:"test"})
+        .set('Authorization', `Bearer ${token}`)
+        .then((response) => {
+          expect(response.statusCode).toBe(200);
+          expect(response.text).toContain('reset password successful');
+        });
+    });
+
+    
 });
