@@ -1,16 +1,12 @@
 const mongoose = require('mongoose')
-const PersonalUser = mongoose.model('PersonalUser')
+const { PersonalUser } = require('../models/db');
 var nodemailer = require('nodemailer');
 var crypto = require("crypto");
 // get user's personal information
 const activateAccount = async (req,res) => {
     try{
-        const user = await PersonalUser.findOne({secretID:req.params.id})
-        if(user.active == false){
-            user.active = true;
-            user.secretID = null;
-            await user.save();
-        }
+        const user = await PersonalUser.findOneAndUpdate({secretID:req.params.id}, {active: false, secretID: null})
+        
         res.send(user);
     }catch(err){
         console.log(err)
@@ -27,7 +23,8 @@ const sendForget = async (req,res)=>{
             res.send('Please verify email first');
         }else{
             user.secretID = crypto.randomBytes(16).toString('hex');
-            await user.save();
+            await PersonalUser.findOneAndUpdate({_id:user._id},{secretID: user.secretID});
+            // user.save();
             //set up node mailer transporter, allow for login in the sender email
             var transporter = nodemailer.createTransport({
                 service: 'gmail',
@@ -68,7 +65,7 @@ const forgetPassword = async (req,res)=>{
         }else{
             user.password = user.hashPassword(req.body.password);
             user.secretID = null;
-            await user.save();
+            await PersonalUser.findOneAndUpdate({secretID: req.params.id},{password: user.password, secretID: null})
             res.send('Password reset Successful')
             
         }
