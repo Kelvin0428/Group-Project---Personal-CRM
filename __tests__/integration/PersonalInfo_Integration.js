@@ -43,4 +43,17 @@ describe('POST /updateInfo',() =>{
             expect(response.text).toContain("wan")
         })
     })
+
+describe('GET Connections',() =>{   
+     test('Get user connections',async() =>{
+           return await request(app)
+           .get('/connections')
+           .set('Authorization', `Bearer ${token}`)
+           .then((response)=>{
+              console.log(response.text)
+             expect(response.text).toBeTruthy()
+          })
+        })
+    });
+
 })
