@@ -22,7 +22,7 @@ beforeAll((done) =>{
 describe('GET /Pinfo', () =>{
 
     test('It responds with JSON', async () => {
-        return await request(app)
+        return request(app)
           .get('/Pinfo')
           .set('Authorization', `Bearer ${token}`)
           .then((response) => {
@@ -34,12 +34,13 @@ describe('GET /Pinfo', () =>{
 
 describe('POST /updateInfo',() =>{
     test('Personal information change to post information',async() =>{
-        return await request(app)
+        return request(app)
         .post('/updateInfo')
         .send({nameFamily:"wan"})
         .set('Authorization', `Bearer ${token}`)
         .then((response)=>{
             console.log(response.text)
+            expect(response.statusCode).toBe(200)
             expect(response.text).toContain("wan")
         })
     })
