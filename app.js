@@ -54,7 +54,7 @@ const PersonalUser = mongoose.model('PersonalUser')
 const cron = require('node-cron');
 
 //the following code executes at 00:00 per day
-cron.schedule('* * */1 * *', async function(){
+cron.schedule('0 0 */1 * *', async function(){
   const users = await PersonalUser.find();
   //for all users, check their respective tasks, and send email if guards are met
   for(let i=0;i<users.length;i++){
