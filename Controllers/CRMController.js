@@ -450,6 +450,11 @@ const searchQuery = async (req,res)=>{
 const BsearchQuery = async (req,res)=>{
     try{
         let output = await BusinessUser.find();
+        for(let i=0;i<output.length;i++){
+
+            output[i].password = null
+
+        }
         res.json(output);
     }catch(err){
         console.log(err)
