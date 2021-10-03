@@ -443,11 +443,18 @@ const searchQuery = async (req,res)=>{
             output.push(current);
         }
         res.json(output);
-
+    }catch(err){
+        console.log(err)
+    }
+}
+const BsearchQuery = async (req,res)=>{
+    try{
+        let output = await BusinessUser.find();
+        res.json(output);
     }catch(err){
         console.log(err)
     }
 }
 module.exports = {getPersonInfo,editPersonalInfo,
     viewConnections,createUsernis,getIdentity,viewTask,createTask,oneTask,editTask,removeTask,completeTask,
-    createCircle,viewCircles,oneCircle,deleteCircle,removeConnection,search,ISsearch,searchQuery}
+    createCircle,viewCircles,oneCircle,deleteCircle,removeConnection,search,ISsearch,searchQuery,BsearchQuery}
