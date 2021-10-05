@@ -10,6 +10,7 @@ CRMRouter.get('/Pinfo',passport.authenticate('jwt',{session: false}), (req,res) 
 CRMRouter.post('/updateInfo',passport.authenticate('jwt',{session: false}),(req,res) =>CRMController.editPersonalInfo(req,res))
 CRMRouter.get('/connections',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.viewConnections(req,res))
 CRMRouter.post('/createUser',passport.authenticate('jwt',{session: false}),(req,res)=> CRMController.createUsernis(req,res))
+CRMRouter.post('/addBUser',passport.authenticate('jwt',{session: false}),(req,res)=> CRMController.addBUser(req,res))
 CRMRouter.get('/userName',passport.authenticate('jwt',{session: false}),(req,res)=> CRMController.getIdentity(req,res))
 
 CRMRouter.get('/tasks',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.viewTask(req,res))

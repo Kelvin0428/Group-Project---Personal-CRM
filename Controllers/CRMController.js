@@ -105,6 +105,23 @@ const createUsernis = async (req,res) => {
     }
 }
 
+const addBUser = async (req,res) =>{
+    try{
+        let BUser = await BusinessUser.findOne({name:req.body.name});
+        let user = await PersonalUser.findOne({userName: req.user.userName})
+        let people = await new Friend({
+            id: BUser._id,
+            accountType: 'business'
+        })
+        console.log(user)
+        user.connections.bc.push(people);
+        await user.save()
+        res.json(user.connections)
+    }catch(err){
+        console.log(err)
+    }
+}
+
 const search = async (req, res) => { 
 	// validate the user input
 	const validationErrors = expressValidator.validationResult(req)
@@ -462,4 +479,4 @@ const BsearchQuery = async (req,res)=>{
 }
 module.exports = {getPersonInfo,editPersonalInfo,
     viewConnections,createUsernis,getIdentity,viewTask,createTask,oneTask,editTask,removeTask,completeTask,
-    createCircle,viewCircles,oneCircle,deleteCircle,removeConnection,search,ISsearch,searchQuery,BsearchQuery}
+    createCircle,viewCircles,oneCircle,deleteCircle,removeConnection,search,ISsearch,searchQuery,BsearchQuery,addBUser}
