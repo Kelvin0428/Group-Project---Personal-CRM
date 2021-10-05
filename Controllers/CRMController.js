@@ -82,7 +82,23 @@ const viewConnections = async (req,res) => {
 
 }
 
-
+const viewBusinessConnections = async (req,res) => {
+    try{
+        let user = await PersonalUser.findOne({userName: req.user.userName});
+        let businessConnection = user.connections.bc;
+        let output = [];
+        console.log(businessConnection)
+        for(let i=0;i<businessConnection.length;i++){
+            let temp = await BusinessUser.findOne({_id: businessConnection[i].id});
+            temp.password = null;
+            output.push(temp);
+            console.log(output)
+        }
+        res.json(output);
+    }catch(err){
+        console.log(err)
+    }
+}
 
 // create a user whose not in system and add to connections
 const createUsernis = async (req,res) => {
@@ -479,4 +495,4 @@ const BsearchQuery = async (req,res)=>{
 }
 module.exports = {getPersonInfo,editPersonalInfo,
     viewConnections,createUsernis,getIdentity,viewTask,createTask,oneTask,editTask,removeTask,completeTask,
-    createCircle,viewCircles,oneCircle,deleteCircle,removeConnection,search,ISsearch,searchQuery,BsearchQuery,addBUser}
+    createCircle,viewCircles,oneCircle,deleteCircle,removeConnection,search,ISsearch,searchQuery,BsearchQuery,addBUser,viewBusinessConnections}
