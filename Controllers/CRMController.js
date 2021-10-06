@@ -96,6 +96,10 @@ const viewBusinessConnections = async (req,res) => {
             console.log(output)
         }
         res.json(output);
+    }catch(err){
+        console.log(err)
+    }
+}
 
 const connectionProfile = async (req,res)=>{
     try{
@@ -667,4 +671,4 @@ const removeAttendee = async (req,res) =>{
 module.exports = {getPersonInfo,editPersonalInfo,
     viewConnections,connectionProfile,createUsernis,getIdentity,viewTask,createTask,oneTask,editTask,removeTask,completeTask,
     createCircle,viewCircles,oneCircle,deleteCircle,removeConnection,search,ISsearch,searchQuery,createEvent,
-    viewEvents,oneEvent,editEvent,deleteEvent,removeAttendee,BsearchQuery,addBUser,viewBusinessConnections }
+    viewEvents,oneEvent,editEvent,deleteEvent,removeAttendee,BsearchQuery,addBUser,viewBusinessConnections}
