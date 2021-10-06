@@ -82,7 +82,23 @@ const viewConnections = async (req,res) => {
 
 }
 
-
+const viewBusinessConnections = async (req,res) => {
+    try{
+        let user = await PersonalUser.findOne({userName: req.user.userName});
+        let businessConnection = user.connections.bc;
+        let output = [];
+        console.log(businessConnection)
+        for(let i=0;i<businessConnection.length;i++){
+            let temp = await BusinessUser.findOne({_id: businessConnection[i].id});
+            temp.password = null;
+            output.push(temp);
+            console.log(output)
+        }
+        res.json(output);
+    }catch(err){
+        console.log(err)
+    }
+}
 
 // create a user whose not in system and add to connections
 const createUsernis = async (req,res) => {
@@ -98,6 +114,23 @@ const createUsernis = async (req,res) => {
         let user = await PersonalUser.findOne({userName:req.user.userName})
         await usernis.save()
         user.connections.cnis.push(people)
+        await user.save()
+        res.json(user.connections)
+    }catch(err){
+        console.log(err)
+    }
+}
+
+const addBUser = async (req,res) =>{
+    try{
+        let BUser = await BusinessUser.findOne({name:req.body.name});
+        let user = await PersonalUser.findOne({userName: req.user.userName})
+        let people = await new Friend({
+            id: BUser._id,
+            accountType: 'business'
+        })
+        console.log(user)
+        user.connections.bc.push(people);
         await user.save()
         res.json(user.connections)
     }catch(err){
@@ -443,11 +476,23 @@ const searchQuery = async (req,res)=>{
             output.push(current);
         }
         res.json(output);
+    }catch(err){
+        console.log(err)
+    }
+}
+const BsearchQuery = async (req,res)=>{
+    try{
+        let output = await BusinessUser.find();
+        for(let i=0;i<output.length;i++){
 
+            output[i].password = null
+
+        }
+        res.json(output);
     }catch(err){
         console.log(err)
     }
 }
 module.exports = {getPersonInfo,editPersonalInfo,
     viewConnections,createUsernis,getIdentity,viewTask,createTask,oneTask,editTask,removeTask,completeTask,
-    createCircle,viewCircles,oneCircle,deleteCircle,removeConnection,search,ISsearch,searchQuery}
+    createCircle,viewCircles,oneCircle,deleteCircle,removeConnection,search,ISsearch,searchQuery,BsearchQuery,addBUser,viewBusinessConnections}
