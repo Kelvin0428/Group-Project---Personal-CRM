@@ -50,7 +50,8 @@ const taskSchema = new mongoose.Schema({
     dueDate: {type:Date},
     isNotified :{type:Boolean,default:false},
     wantNotified:{type:Boolean},
-    status: {type: String, enum:['failed','incomplete','completed']}
+    status: {type: String, enum:['failed','incomplete','completed']},
+    highlight:{type:Boolean, default:false}
 })
 
 
