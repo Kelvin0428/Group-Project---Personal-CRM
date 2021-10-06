@@ -10,6 +10,8 @@ CRMRouter.get('/Pinfo',passport.authenticate('jwt',{session: false}), (req,res) 
 CRMRouter.post('/updateInfo',passport.authenticate('jwt',{session: false}),(req,res) =>CRMController.editPersonalInfo(req,res))
 CRMRouter.get('/connections',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.viewConnections(req,res))
 CRMRouter.get('/BusinessConnections',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.viewBusinessConnections(req,res))
+CRMRouter.get('/connection/:_id',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.connectionProfile(req,res))
+
 CRMRouter.post('/createUser',passport.authenticate('jwt',{session: false}),(req,res)=> CRMController.createUsernis(req,res))
 CRMRouter.post('/addBUser',passport.authenticate('jwt',{session: false}),(req,res)=> CRMController.addBUser(req,res))
 CRMRouter.get('/userName',passport.authenticate('jwt',{session: false}),(req,res)=> CRMController.getIdentity(req,res))
@@ -36,4 +38,11 @@ CRMRouter.post('/ISsearch',passport.authenticate('Bjwt',{session:false}), expres
 CRMRouter.get('/searchQuery',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.searchQuery(req,res))
 
 CRMRouter.get('/BusinessSearchQuery',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.BsearchQuery(req,res))
+CRMRouter.post('/createEvent',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.createEvent(req,res))
+CRMRouter.get('/events',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.viewEvents(req,res))
+CRMRouter.get('/event/:_id',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.oneEvent(req,res))
+CRMRouter.post('/event/edit/:_id',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.editEvent(req,res))
+CRMRouter.get('/event/delete/:_id',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.deleteEvent(req,res))
+CRMRouter.post('/event/:_id/removeAttendee',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.removeAttendee(req,res))
+
 module.exports = CRMRouter
