@@ -267,13 +267,11 @@ const viewTask = async (req,res) =>{
 // create the task and add to user's tasks array 
 const createTask = async (req,res)=>{
     try{
-        let unis = await Usernis.findOne({fullName:req.body.name})
-        let id = unis._id
         // created date is default of current time
         let task = await new Task({
             taskName:req.body.taskName,
             description: req.body.description,
-            connectionID:id,
+            connectionID:req.body.connectionID,
             dueDate:req.body.dueDate,
             wantNotified:req.body.wantNotified,
             status: 'incomplete'
@@ -530,8 +528,7 @@ const createEvent = async (req,res) =>{
         })
         const cnis = user.connections.cnis
         for(var people of req.body.attendee){
-            const unis = await Usernis.findOne({fullName:people})
-            console.log(people)
+            const unis = await Usernis.findOne({_id:people})
             unis.events.push(event._id)
             await unis.save()
             for(var friend of cnis){
