@@ -3,7 +3,7 @@ const BusinessUser = mongoose.model('BusinessUser')
 const Friend = mongoose.model('Friend')
 const Usernis = mongoose.model('Usernis')
 const Connection = mongoose.model('Connection')
-
+const Event = mongoose.model('Event')
 const expressValidator = require('express-validator')
 // get Business information
 const getBusinessInfo = async (req,res) => {
@@ -11,6 +11,12 @@ const getBusinessInfo = async (req,res) => {
         console.log(req.user.email);
         const user = await BusinessUser.findOne({email:req.user.email}).lean()
         console.log(user)
+        let temp = []
+        for (let i=0;i<user.events.length;i++){
+            temp.push(await Event.find({_id:user.events[i]}));
+        }
+
+        user.events = temp;
         res.json(user);
     }catch(err){
         console.log(err)
