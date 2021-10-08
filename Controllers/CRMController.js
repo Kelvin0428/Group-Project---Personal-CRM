@@ -65,7 +65,8 @@ const viewConnections = async (req,res) => {
                     var friend = await Usernis.findOne({_id:person.id})
                     cnis.push({
                         id:friend._id,
-                        name: friend.fullName
+                        name: friend.fullName,
+                        connectionScore: person.connectionScore
                     })
                 }
                 data.push(cnis)
@@ -76,6 +77,38 @@ const viewConnections = async (req,res) => {
                 }
             }
         }
+
+        //--------------------------------------------------
+        let current = await PersonalUser.findOne({userName:req.user.userName})
+        let friendo;
+        let completedTasks = current.completedTask;
+        for(let i=0;i<current.connections.cnis.length;i++){
+            friendo = current.connections.cnis[i]
+            console.log(friendo)
+            let total = 0;
+            let calcDate = new Date();
+            let swi = 7;
+            if (friendo.timeType == 'month'){
+                swi = 30;
+            }
+            calcDate.setDate(calcDate.getDate() - friendo.timeGoal * swi);
+            for(let j=0; j<completedTasks.length; j++){
+                if(completedTasks[j].relatedConnection != null && completedTasks[j].relatedConnection.equals(friendo.id)){
+
+                    console.log(calcDate);
+                    console.log(completedTasks[j].timeStamp);
+                    if(completedTasks[j].timeStamp > calcDate){
+                        total += 1;
+                    }
+                }
+            }
+
+            friendo.connectionScore = total* 100 / friendo.numGoal;
+            current.connections.cnis[i].connectionScore = friendo.connectionScore;
+            await current.save();
+        }
+
+//------------------------------------------------------------
         res.json(data)
     }catch(err){
         console.log(err)
@@ -344,6 +377,9 @@ const completeTask = async (req,res)=>{
             relatedConnection:task.connectionID,
             timeStamp:task.dueDate
         })
+        if(task.connectionID == null){
+            completeTask.relatedConnection = null;
+        }
         user.completedTask.push(completeTask)
         await user.save()
         console.log(task)

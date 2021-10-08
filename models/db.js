@@ -23,7 +23,7 @@ const friendSchema = new mongoose.Schema({
     timeGoal:{type:Number,default:2},
     timeType:{type:String,enum:['week','month'],default:"week"},
     numGoal:{type:Number,default:1},
-    connectionScore:{type:Number},
+    connectionScore:{type:Number, default:0},
     accountType: {type:String, enum:['inSystem','notInSystem','business'],required:true}
 })
 
