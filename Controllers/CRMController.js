@@ -102,7 +102,17 @@ const viewConnections = async (req,res) => {
                     }
                 }
             }
-
+            for(let j=0;j<current.events.length;j++){
+                let event = await Event.findOne({_id: current.events[j]});
+                for(let k=0;k<event.attendee.cnis.length;k++){
+                    console.log("-----------")
+                    console.log(event);
+                    if (event.eventDate > calcDate && event.attendee.cnis[k].id.equals(friendo.id)){
+                        total += 1;
+                        break;
+                    }
+                }
+            }
             friendo.connectionScore = total* 100 / friendo.numGoal;
             current.connections.cnis[i].connectionScore = friendo.connectionScore;
             await current.save();
