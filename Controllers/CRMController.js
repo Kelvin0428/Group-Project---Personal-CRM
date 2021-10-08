@@ -529,14 +529,16 @@ const createEvent = async (req,res) =>{
             attendee: new Usernis()
         })
         const cnis = user.connections.cnis
-        for(var people of req.body.attendee){
-            const unis = await Usernis.findOne({fullName:people})
-            console.log(people)
-            unis.events.push(event._id)
-            await unis.save()
-            for(var friend of cnis){
-                if(friend.id.equals(unis._id)){
-                    event.attendee.cnis.push(friend)
+        if(req.body.attendee){
+            for(var people of req.body.attendee){
+                const unis = await Usernis.findOne({_id:people})
+                console.log(people)
+                unis.events.push(event._id)
+                await unis.save()
+                for(var friend of cnis){
+                    if(friend.id.equals(unis._id)){
+                        event.attendee.cnis.push(friend)
+                    }
                 }
             }
         }
