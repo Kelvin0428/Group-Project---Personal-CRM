@@ -51,6 +51,14 @@ describe('POST /createUser' ,() => {
 
     })
 
+    afterAll(async()=>{
+        const user = await PersonalUser.findOne({userName:"frank"})
+        user.connections.cnis.pop();
+        await Usernis.findOneAndDelete({fullName:"test test"})
+        await user.save()
+    })
+
+})
 describe('GET /connection/:_id' ,() => {
     test('It response with a connection profile include personal information and friend information', async () =>{
         return request(app)
@@ -84,17 +92,3 @@ describe('POST /connection/edit/:_id' ,() => {
 })
 
 
-
-    afterAll(async()=>{
-        const unis = await Usernis.findOne({fullName:"test test"})
-        const user = await PersonalUser.findOne({userName:"frank"})
-        for(const obj of user.connections.cnis){
-            if(obj.id.equals(unis._id)){
-                user.connections.cnis.pull(obj)
-            }
-        }
-        await Usernis.findOneAndDelete({fullName:"test test"})
-        user.save()
-    })
-
-})

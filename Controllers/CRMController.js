@@ -54,19 +54,13 @@ const viewConnections = async (req,res) => {
         const connection = user.connections
         const data = []
         for(const group in connection){
-            if(group == "cis"){
-                const cis = []
-                for(var person of connection[group]){
-                    var friend = await PersonalUser.findOne({id:person.id})
-                }
-            }else if(group == "cnis"){
+             if(group == "cnis"){
                 const cnis = []
                 for(var person of connection[group]){
                     var friend = await Usernis.findOne({_id:person.id})
                     cnis.push({
                         id:friend._id,
                         name: friend.fullName,
-                        connectionScore: person.connectionScore
                     })
                 }
                 data.push(cnis)
