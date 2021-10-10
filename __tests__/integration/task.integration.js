@@ -39,7 +39,6 @@ describe('Integration test: Tasks', () => {
         .post('/createTask')
         .send({taskName:"Integration Testing",
           description:"This task is added due to integration testing",
-          connectionID:"1234",
           dueDate:"2021-10-28",
           wantNotified:true})
         .set('Authorization', `Bearer ${token}`)
