@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const { BusinessUser, Circle } = require('../models/db')
+const { BusinessUser, Circle, PersonalInfo } = require('../models/db')
 const { PersonalUser } = require('../models/db');
 const Friend = mongoose.model('Friend')
 const Usernis = mongoose.model('Usernis')
@@ -102,6 +102,7 @@ const viewBusinessConnections = async (req,res) => {
     }
 }
 
+
 const connectionProfile = async (req,res)=>{
     try{
         const unis = await Usernis.findOne({_id:req.params._id}).lean()
@@ -115,6 +116,35 @@ const connectionProfile = async (req,res)=>{
             }
         }
         res.json(data)
+    }catch(err){
+        console.log(err)
+    }
+}
+
+
+const editConnectionProfile = async (req,res) =>{
+    try{
+        const unis = await Usernis.findOne({_id:req.params._id})
+        const user = await PersonalUser.findOne({userName:req.user.userName})
+        const personalInfo = unis.personalInfo
+        if(req.body.nameFamily){personalInfo.nameFamily = req.body.nameFamily}
+        if(req.body.nameGiven){personalInfo.nameGiven = req.body.nameGiven}
+        if(req.body.DOB){personalInfo.DOB = req.body.DOB}
+        if(req.body.gender){personalInfo.gender = req.body.gender}
+        if(req.body.address){personalInfo.address = req.body.address}
+        if(req.body.description){personalInfo.description = req.body.description}
+        if(req.body.phoneNo){personalInfo.phoneNo=req.body.phoneNo}
+        unis.fullName = unis.personalInfo.nameGiven+" "+unis.personalInfo.nameFamily
+        for(let friend of user.connections.cnis){
+            if(friend.id == req.params._id){
+                if(req.body.timeGoal){friend.timeGoal = req.body.timeGoal}
+                if(req.body.timeType){friend.timeType = req.body.timeType}
+                if(req.body.numGoal){friend.numGoal = req.body.numGoal}
+            }
+        }
+        await unis.save()
+        await user.save()
+        res.json("edit successful")
     }catch(err){
         console.log(err)
     }
@@ -569,21 +599,20 @@ const createEvent = async (req,res) =>{
             eventAddress: req.body.eventAddress,
             host: user.personalInfo.nameGiven+" "+user.personalInfo.nameFamily,
             hostId:user._id,
-            attendee: new Usernis()
+            attendee: new Connection()
         })
-        const cnis = user.connections.cnis
-        for(var people of req.body.attendee){
-            const unis = await Usernis.findOne({_id:people})
+
+        if(req.body.attendee){
+            const unis = await Usernis.findOne({_id:req.body.attendee})
             unis.events.push(event._id)
             await unis.save()
+            const cnis = user.connections.cnis
             for(var friend of cnis){
-                if(friend.id.equals(unis._id)){
+                if(friend.id.equals(req.body.attendee)){
                     event.attendee.cnis.push(friend)
                 }
             }
         }
-
-        console.log(event)
         await event.save()
         user.events.push(event._id)
         await user.save()
@@ -613,12 +642,7 @@ const oneEvent = async (req,res)=>{
         const people = event.attendee
         const attendees = []
         for(const group in people){
-            if(group == "cis"){
-                const cis = []
-                for(var person of people[group]){
-                    var friend = await PersonalUser.findOne({id:person.id})
-                }
-            }else if(group == "cnis"){
+            if(group == "cnis"){
                 const cnis = []
                 for(var person of people[group]){
                     var friend = await Usernis.findOne({_id:person.id})
@@ -628,11 +652,6 @@ const oneEvent = async (req,res)=>{
                     })
                 }
                 attendees.push(cnis)
-            }else{
-                const bc = []
-                for(var person of people[group]){
-                    var friend = await BusinessUser.findOne({id:person.id})
-                }
             }
         }
         event.attendee = attendees
@@ -709,8 +728,28 @@ const removeAttendee = async (req,res) =>{
     }
 }
 
+const addAttendee = async(req,res) =>{
+    try{
+        const event = await Event.findOne({_id:req.params._id})
+        const user = await PersonalUser.findOne({userName:req.user.userName})
+        for(let people of user.connections.cnis){
+            if(people.id == req.body.id){
+                event.attendee.cnis.push(people)
+            }
+        }
+        const unis = await Usernis.findOne({_id:req.body.id})
+        unis.events.push(event._id)
+        
+        await event.save()
+        await unis.save()
+        res.json("add successful")
+    }catch(err){
+        console.log(err)
+    }
+}
+
 
 module.exports = {getPersonInfo,editPersonalInfo,
-    viewConnections,connectionProfile,createUsernis,getIdentity,viewTask,createTask,oneTask,editTask,removeTask,completeTask,
+    viewConnections,connectionProfile,editConnectionProfile,createUsernis,getIdentity,viewTask,createTask,oneTask,editTask,removeTask,completeTask,
     createCircle,viewCircles,oneCircle,deleteCircle,removeConnection,search,ISsearch,searchQuery,createEvent,
-    viewEvents,oneEvent,editEvent,deleteEvent,removeAttendee,BsearchQuery,addBUser,viewBusinessConnections}
+    viewEvents,oneEvent,editEvent,deleteEvent,removeAttendee,addAttendee,BsearchQuery,addBUser,viewBusinessConnections}
