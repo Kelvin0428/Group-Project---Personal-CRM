@@ -5,7 +5,7 @@ var crypto = require("crypto");
 // get user's personal information
 const activateAccount = async (req,res) => {
     try{
-        const user = await PersonalUser.findOneAndUpdate({secretID:req.params.id}, {active: false, secretID: null})
+        const user = await PersonalUser.findOneAndUpdate({secretID:req.params.id}, {active: true, secretID: null})
         
         res.send(user);
     }catch(err){
@@ -39,7 +39,7 @@ const sendForget = async (req,res)=>{
                 to: user.email,
                 subject: 'Forgot Password',
                 //url here needs to be changed to front end's
-                html: "<h1>Welcome to Polar Circle</h1><h2>Please proceed with the below link to reset your password</h2> <a href='http://localhost:3000/forget_reset/"+ user.secretID + "'>Reset password</a> "
+                html: "<header style ='background-color:AliceBlue;'><h1 style='background-color:DeepSkyBlue; color:white'>Polar Circle</h1><h2>Hi "+user.personalInfo.nameGiven +"</h2><br><br><h3>Please proceed with  <a href='http://localhost:3000/forget_reset/"+ user.secretID + "'>this link</a> to reset your password</h3> <br> <br> <small>If you are not the intended recipient, please disregard this email"
             }
 
             //send the mail

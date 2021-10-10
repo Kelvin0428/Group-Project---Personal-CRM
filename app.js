@@ -53,6 +53,7 @@ const mongoose = require('mongoose')
 const PersonalUser = mongoose.model('PersonalUser')
 const cron = require('node-cron');
 
+
 //the following code executes at 00:00 per day
 cron.schedule('0 0 */1 * *', async function(){
   const users = await PersonalUser.find();
@@ -92,20 +93,21 @@ cron.schedule('0 0 */1 * *', async function(){
                   pass: 'paralleloflatitude'
               }
             });
+            console.log('a');
             //set up mail details, the recipient and content
             var mailDetails = {
               from: 'polarcirclecrm@gmail.com',
               to: users[i].email,
-              subject: 'Task: ' + tasks[j].taskName + ' Notification',
+              subject: 'Task: ' + tasks[j].taskName + ' - Notification',
               //includes days left till dead line in email
-              html: "<h1>Task: " + tasks[j].taskName + " Notification</h1><h2>Reminder that you have " + daysLeft + " days left on your task </h2> "
+              html: "<header style ='background-color:AliceBlue;'><h1 style='background-color:DeepSkyBlue; color:white'>Polar Circle</h1><h2>Hi " + users[i].personalInfo.nameGiven + "</h2> <br><br><h3>This is a reminder that you have " + daysLeft + " days left on your task: " + tasks[j].taskName + "</h3><br><br> <small>This email address is not being monitored. Please do not reply to this email</small></header>"
             }
+            console.log('b');
             //send the mail
             transporter.sendMail(mailDetails, function(error, info){
               if(error){
                   console.log(error);
               }else{
-                  res.send('Password reset email sent');
                   console.log('Email sent:' + info.response)
               }
             })
