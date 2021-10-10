@@ -77,48 +77,6 @@ const viewConnections = async (req,res) => {
                 }
             }
         }
-
-        //--------------------------------------------------
-        let current = await PersonalUser.findOne({userName:req.user.userName})
-        let friendo;
-        let completedTasks = current.completedTask;
-        for(let i=0;i<current.connections.cnis.length;i++){
-            friendo = current.connections.cnis[i]
-            console.log(friendo)
-            let total = 0;
-            let calcDate = new Date();
-            let swi = 7;
-            if (friendo.timeType == 'month'){
-                swi = 30;
-            }
-            calcDate.setDate(calcDate.getDate() - friendo.timeGoal * swi);
-            for(let j=0; j<completedTasks.length; j++){
-                if(completedTasks[j].relatedConnection != null && completedTasks[j].relatedConnection.equals(friendo.id)){
-
-                    console.log(calcDate);
-                    console.log(completedTasks[j].timeStamp);
-                    if(completedTasks[j].timeStamp > calcDate){
-                        total += 1;
-                    }
-                }
-            }
-            for(let j=0;j<current.events.length;j++){
-                let event = await Event.findOne({_id: current.events[j]});
-                for(let k=0;k<event.attendee.cnis.length;k++){
-                    console.log("-----------")
-                    console.log(event);
-                    if (event.eventDate > calcDate && event.attendee.cnis[k].id.equals(friendo.id)){
-                        total += 1;
-                        break;
-                    }
-                }
-            }
-            friendo.connectionScore = total* 100 / friendo.numGoal;
-            current.connections.cnis[i].connectionScore = friendo.connectionScore;
-            await current.save();
-        }
-
-//------------------------------------------------------------
         res.json(data)
     }catch(err){
         console.log(err)
@@ -541,6 +499,47 @@ const searchQuery = async (req,res)=>{
             current.description = ind.personalInfo.description;
             output.push(current);
         }
+   //--------------------------------------------------
+        let current = await PersonalUser.findOne({userName:req.user.userName})
+        let friendo;
+        let completedTasks = current.completedTask;
+        for(let i=0;i<current.connections.cnis.length;i++){
+            friendo = current.connections.cnis[i]
+            console.log(friendo)
+            let total = 0;
+            let calcDate = new Date();
+            let swi = 7;
+            if (friendo.timeType == 'month'){
+                swi = 30;
+            }
+            calcDate.setDate(calcDate.getDate() - friendo.timeGoal * swi);
+            for(let j=0; j<completedTasks.length; j++){
+                if(completedTasks[j].relatedConnection != null && completedTasks[j].relatedConnection.equals(friendo.id)){
+
+                    console.log(calcDate);
+                    console.log(completedTasks[j].timeStamp);
+                    if(completedTasks[j].timeStamp > calcDate){
+                        total += 1;
+                    }
+                }
+            }
+            for(let j=0;j<current.events.length;j++){
+                let event = await Event.findOne({_id: current.events[j]});
+                for(let k=0;k<event.attendee.cnis.length;k++){
+                    console.log("-----------")
+                    console.log(event);
+                    if (event.eventDate > calcDate && event.attendee.cnis[k].id.equals(friendo.id)){
+                        total += 1;
+                        break;
+                    }
+                }
+            }
+            friendo.connectionScore = total* 100 / friendo.numGoal;
+            current.connections.cnis[i].connectionScore = friendo.connectionScore;
+            await current.save();
+        }
+
+//------------------------------------------------------------
         res.json(output);
     }catch(err){
         console.log(err)
