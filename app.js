@@ -53,7 +53,6 @@ const mongoose = require('mongoose')
 const PersonalUser = mongoose.model('PersonalUser')
 const cron = require('node-cron');
 
-
 //the following code executes at 00:00 per day
 cron.schedule('0 0 */1 * *', async function(){
   const users = await PersonalUser.find();
@@ -93,7 +92,6 @@ cron.schedule('0 0 */1 * *', async function(){
                   pass: 'paralleloflatitude'
               }
             });
-            console.log('a');
             //set up mail details, the recipient and content
             var mailDetails = {
               from: 'polarcirclecrm@gmail.com',
@@ -137,6 +135,9 @@ cron.schedule('0 0 */1 * *', async function(){
 
 
 // listening on Port address if active, or else on local host 8000
-app.listen(process.env.PORT || 8000, () => {
+//the guard is to prevent listen EADDRINUSE: address already in use :: 8000 issue
+if(process.env.NODE_ENV != 'test'){
+  app.listen(process.env.PORT || 8000, () => {
   console.log("Connected")
-})
+})}
+module.exports = app

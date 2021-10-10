@@ -102,7 +102,6 @@ const viewBusinessConnections = async (req,res) => {
     }
 }
 
-
 const connectionProfile = async (req,res)=>{
     try{
         const unis = await Usernis.findOne({_id:req.params._id}).lean()
@@ -298,6 +297,8 @@ const viewTask = async (req,res) =>{
 // create the task and add to user's tasks array 
 const createTask = async (req,res)=>{
     try{
+        let unis = await Usernis.findOne({fullName:req.body.name})
+        let id = unis._id
         // created date is default of current time
         let task = await new Task({
             taskName:req.body.taskName,
