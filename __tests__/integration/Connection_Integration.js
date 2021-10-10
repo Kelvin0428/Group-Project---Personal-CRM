@@ -51,6 +51,40 @@ describe('POST /createUser' ,() => {
 
     })
 
+describe('GET /connection/:_id' ,() => {
+    test('It response with a connection profile include personal information and friend information', async () =>{
+        return request(app)
+        .get('/connection/614974267dd4443287f05382')
+        .set('Authorization', `Bearer ${token}`)
+        .then((response) => {
+            expect(response.statusCode).toBe(200);
+            expect(response.text).toContain("frank wan")
+            });
+
+    })
+
+})
+
+
+describe('POST /connection/edit/:_id' ,() => {
+    test('It response with an updated connection profile include personal information and friend information', async () =>{
+        return request(app)
+        .post('/connection/edit/614974267dd4443287f05382')
+        .send({
+            description:"this is for testing"
+        })
+        .set('Authorization', `Bearer ${token}`)
+        .then((response) => {
+            expect(response.statusCode).toBe(200);
+            expect(response.text).toContain("edit successful")
+            });
+
+    })
+
+})
+
+
+
     afterAll(async()=>{
         const unis = await Usernis.findOne({fullName:"test test"})
         const user = await PersonalUser.findOne({userName:"frank"})
