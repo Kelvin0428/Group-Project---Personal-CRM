@@ -28,7 +28,7 @@ describe('Event Testing' ,() => {
         .send({
             eventDate:2020-1-1,
             eventName:'Integration testing',
-            attendee:["614974267dd4443287f05382","6149745c7dd4443287f05388"]
+            attendee:"614974267dd4443287f05382"
         })
         .set('Authorization', `Bearer ${token}`)
         .then((response) => {
@@ -86,7 +86,19 @@ describe('Event Testing' ,() => {
           });
     })
 
-    test('Test 6: delete event', async () =>{
+    test('Test 6: add attendee',async() => {
+        let event = await Event.findOne({eventName:'Integration testing'})
+        return request(app)
+        .post('/event/' + event._id +'/addAttendee')
+        .send({id:'6149745c7dd4443287f05388'})
+        .set('Authorization', `Bearer ${token}`)
+        .then((response) => {
+            expect(response.statusCode).toBe(200);
+            expect(response.text).toContain("add successful")
+          });
+    })
+
+    test('Test 7: delete event', async () =>{
         let event = await Event.findOne({eventName:'Integration testing'})
         return request(app)
         .get('/event/delete/' +event._id)
