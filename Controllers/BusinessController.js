@@ -8,12 +8,23 @@ const expressValidator = require('express-validator')
 // get Business information
 const getBusinessInfo = async (req,res) => {
     try{
-        console.log(req.user.email);
         const user = await BusinessUser.findOne({email:req.user.email}).lean()
-        console.log(user)
         res.json(user);
     }catch(err){
         console.log(err)
+    }
+}
+
+const editBusinessInfo = async (req,res) =>{
+    try{
+        let buser = await BusinessUser.findOne({email:req.user.email})
+        if(req.body.name){buser.name=req.body.name}
+        if(req.body.description){buser.description=req.body.description}
+        await buser.save()
+        res.json(buser)
+    }catch(err){
+        console.log(err)
+    
     }
 }
 
@@ -89,4 +100,4 @@ const oneEvent = async (req,res)=>{
 }
 
 
-module.exports = {getBusinessInfo,createEvent,viewEvents,oneEvent}
+module.exports = {getBusinessInfo,createEvent,viewEvents,oneEvent,editBusinessInfo}
