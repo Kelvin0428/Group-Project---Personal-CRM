@@ -11,6 +11,8 @@ CRMRouter.post('/updateInfo',passport.authenticate('jwt',{session: false}),(req,
 CRMRouter.get('/connections',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.viewConnections(req,res))
 CRMRouter.get('/BusinessConnections',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.viewBusinessConnections(req,res))
 CRMRouter.get('/connection/:_id',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.connectionProfile(req,res))
+CRMRouter.post('/connection/edit/:_id',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.editConnectionProfile(req,res))
+
 
 CRMRouter.post('/createUser',passport.authenticate('jwt',{session: false}),(req,res)=> CRMController.createUsernis(req,res))
 CRMRouter.post('/addBUser',passport.authenticate('jwt',{session: false}),(req,res)=> CRMController.addBUser(req,res))
@@ -44,5 +46,6 @@ CRMRouter.get('/event/:_id',passport.authenticate('jwt',{session: false}),(req,r
 CRMRouter.post('/event/edit/:_id',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.editEvent(req,res))
 CRMRouter.get('/event/delete/:_id',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.deleteEvent(req,res))
 CRMRouter.post('/event/:_id/removeAttendee',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.removeAttendee(req,res))
+CRMRouter.post('/event/:_id/addAttendee',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.addAttendee(req,res))
 
 module.exports = CRMRouter
