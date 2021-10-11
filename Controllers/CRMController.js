@@ -114,6 +114,54 @@ const connectionProfile = async (req,res)=>{
     }
 }
 
+const deleteConnection = async (req,res)=>{
+    try{
+        const user = await PersonalUser.findOne({userName:req.user.userName})
+
+        for(var person of user.connections.cnis){
+            if(person.id == req.params._id){
+                user.connections.cnis.pull(person)
+            }
+        }
+        
+        for(var circle of user.circles){
+            for(var people of circle.people.cnis){
+                if(people.id == req.params._id){
+                    circle.people.cnis.pull(people)
+                }
+            }
+        }
+
+        for(var task of user.tasks){
+            if(task.connectionID == req.params._id){
+                user.tasks.pull(task)
+            }
+        }
+
+        for(var task of user.completedTask){
+            if(task.relatedConnection == req.params._id){
+                user.completedTask.pull(task)
+            }
+        }
+
+        const unis = await Usernis.findOne({_id:req.params._id})
+        for(var eventID of unis.events){
+            let event = await Event.findOne({_id:eventID})
+            for(var person of event.attendee.cnis){
+                if(person.id == req.params._id){
+                    event.attendee.cnis.pull(person)
+                }
+            }
+            event.save()
+        }
+        user.save()
+        await Usernis.findOneAndDelete({_id:req.params._id})
+        res.json("delete connection successful")
+    }catch(err){
+        console.log(err)
+    }
+}
+
 
 const editConnectionProfile = async (req,res) =>{
     try{
@@ -765,6 +813,6 @@ const getTags = async(req,res) => {
 }
 
 module.exports = {getPersonInfo,editPersonalInfo,
-    viewConnections,connectionProfile,editConnectionProfile,createUsernis,getIdentity,viewTask,createTask,oneTask,editTask,removeTask,completeTask,
+    viewConnections,connectionProfile,deleteConnection,editConnectionProfile,createUsernis,getIdentity,viewTask,createTask,oneTask,editTask,removeTask,completeTask,
     createCircle,viewCircles,oneCircle,deleteCircle,removeConnection,search,ISsearch,searchQuery,createEvent,
     viewEvents,oneEvent,editEvent,deleteEvent,removeAttendee,addAttendee,BsearchQuery,addBUser,viewBusinessConnections,getTags}
