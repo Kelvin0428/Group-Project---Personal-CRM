@@ -52,13 +52,49 @@ var nodemailer = require('nodemailer');
 const mongoose = require('mongoose')
 const PersonalUser = mongoose.model('PersonalUser')
 const cron = require('node-cron');
-
+const Event = mongoose.model('Event')
 //the following code executes at 00:00 per day
 cron.schedule('0 0 */1 * *', async function(){
   const users = await PersonalUser.find();
   //for all users, check their respective tasks, and send email if guards are met
   for(let i=0;i<users.length;i++){
     let tasks = users[i].tasks;
+    let events = users[i].events;
+    console.log(events)
+    for(let j=0;j<events.length;j++){
+      console.log(events[j]);
+      let eve = await Event.findOne({_id:events[j]})
+      var currentTime = new Date();
+      if(eve.eventDate.getFullYear() == currentTime.getFullYear() && eve.eventDate.getMonth() == currentTime.getMonth() && eve.eventDate.getDate() - 1 == currentTime.getDate()){
+        console.log('--------------');
+        var transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth:{
+              user: 'polarcirclecrm@gmail.com',
+              pass: 'paralleloflatitude'
+          }
+        });
+        //set up mail details, the recipient and content
+        console.log(eve.eventName)
+        var mailDetails = {
+          from: 'polarcirclecrm@gmail.com',
+          to: users[i].email,
+          subject: 'Event: ' + eve.eventName + ' - Notification',
+          //includes days left till dead line in email
+          html: "<header style ='background-color:AliceBlue;'><h1 style='background-color:DeepSkyBlue; color:white'>Polar Circle</h1><h2>Hi " + users[i].personalInfo.nameGiven + "</h2> <br><br><h3>This is a reminder that you have " + eve.eventName + " tomorrow</h3><br><br> <small>This email address is not being monitored. Please do not reply to this email</small></header>"
+        }
+        console.log('b');
+        //send the mail
+        transporter.sendMail(mailDetails, function(error, info){
+          if(error){
+              console.log(error);
+          }else{
+              console.log('Email sent:' + info.response)
+          }
+        })
+        console.log("A");
+      }
+    }
     for(let j=0;j<tasks.length;j++){
       console.log(tasks[j]);
       //it the tasks is already completed, or users dont want notification, or it is already notified, then dont send the email
