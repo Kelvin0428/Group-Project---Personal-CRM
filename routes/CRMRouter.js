@@ -48,4 +48,5 @@ CRMRouter.get('/event/delete/:_id',passport.authenticate('jwt',{session: false})
 CRMRouter.post('/event/:_id/removeAttendee',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.removeAttendee(req,res))
 CRMRouter.post('/event/:_id/addAttendee',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.addAttendee(req,res))
 
+CRMRouter.get('/tags', passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.getTags(req,res))
 module.exports = CRMRouter

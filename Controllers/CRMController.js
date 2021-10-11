@@ -153,11 +153,24 @@ const createUsernis = async (req,res) => {
         })
         let people = await new Friend({
             id:usernis._id,
-            accountType: 'notInSystem'
+            accountType: 'notInSystem',
+            tags:[]
         })
+        people.tags.push(req.body.tag)
         let user = await PersonalUser.findOne({userName:req.user.userName})
         await usernis.save()
+        let add = true;
         user.connections.cnis.push(people)
+        for(let i=0;i<user.tagList.length; i++){
+            if(user.tagList[i] == req.body.tag){
+                console.log('a');
+                add = false;
+                break;
+            }
+        }
+        if(add){
+            user.tagList.push(req.body.tag)
+        }
         await user.save()
         res.json(user.connections)
     }catch(err){
@@ -494,6 +507,8 @@ const removeConnection = async (req,res) =>{
         let changedCircles = user.circles
         await PersonalUser.findOneAndUpdate({userName:req.user.userName},{circles:changedCircles})
         console.log(user.circles)
+
+
         res.json(user.circles)
     }catch(err){
         console.log(err)
@@ -740,8 +755,16 @@ const addAttendee = async(req,res) =>{
     }
 }
 
+const getTags = async(req,res) => {
+    try{
+        const user = await PersonalUser.findOne({userName:req.user.userName})
+        res.json(user.tagList)
+    }catch(err){
+        console.log(err)
+    }
+}
 
 module.exports = {getPersonInfo,editPersonalInfo,
     viewConnections,connectionProfile,editConnectionProfile,createUsernis,getIdentity,viewTask,createTask,oneTask,editTask,removeTask,completeTask,
     createCircle,viewCircles,oneCircle,deleteCircle,removeConnection,search,ISsearch,searchQuery,createEvent,
-    viewEvents,oneEvent,editEvent,deleteEvent,removeAttendee,addAttendee,BsearchQuery,addBUser,viewBusinessConnections}
+    viewEvents,oneEvent,editEvent,deleteEvent,removeAttendee,addAttendee,BsearchQuery,addBUser,viewBusinessConnections,getTags}
