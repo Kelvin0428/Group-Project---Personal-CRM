@@ -12,6 +12,7 @@ CRMRouter.get('/connections',passport.authenticate('jwt',{session: false}),(req,
 CRMRouter.get('/BusinessConnections',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.viewBusinessConnections(req,res))
 CRMRouter.get('/connection/:_id',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.connectionProfile(req,res))
 CRMRouter.post('/connection/edit/:_id',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.editConnectionProfile(req,res))
+CRMRouter.get('/connection/remove/:_id',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.deleteConnection(req,res))
 
 
 CRMRouter.post('/createUser',passport.authenticate('jwt',{session: false}),(req,res)=> CRMController.createUsernis(req,res))
@@ -31,6 +32,7 @@ CRMRouter.get('/circle/:id',passport.authenticate('jwt',{session: false}),(req,r
 
 CRMRouter.get('/circle/delete/:id',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.deleteCircle(req,res))
 
+CRMRouter.post('/circle/:id/addConnection',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.addConnection(req,res))
 CRMRouter.post('/circle/:id/removeConnection',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.removeConnection(req,res))
 
 CRMRouter.post('/search', passport.authenticate('jwt',{session:false}),expressValidator.body('tag').isAlpha().optional({checkFalsy: true}),(req,res)=>CRMController.search(req,res))
@@ -48,4 +50,5 @@ CRMRouter.get('/event/delete/:_id',passport.authenticate('jwt',{session: false})
 CRMRouter.post('/event/:_id/removeAttendee',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.removeAttendee(req,res))
 CRMRouter.post('/event/:_id/addAttendee',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.addAttendee(req,res))
 
+CRMRouter.get('/tags', passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.getTags(req,res))
 module.exports = CRMRouter
