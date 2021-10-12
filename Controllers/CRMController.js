@@ -541,6 +541,24 @@ const deleteCircle = async (req,res) =>{
     }
 }
 
+const addConnection = async (req,res) =>{
+    try{
+        let user = await PersonalUser.findOne({userName: req.user.userName})
+        let people = user.circles.find(circle => circle._id == req.params.id).people
+        for(let i =0;i<user.connections.cnis.length; i++){
+            if(user.connections.cnis[i].id == req.body.id){
+                people.cnis.push(user.connections.cnis[i]);
+                break;
+            }
+        }
+        await user.save();
+        res.send("user added");
+       
+    }catch(err){
+        console.log(err)
+    }
+} 
+
 const removeConnection = async (req,res) =>{
     try{
         let user = await PersonalUser.findOne({userName:req.user.userName}).lean()
@@ -815,4 +833,4 @@ const getTags = async(req,res) => {
 module.exports = {getPersonInfo,editPersonalInfo,
     viewConnections,connectionProfile,deleteConnection,editConnectionProfile,createUsernis,getIdentity,viewTask,createTask,oneTask,editTask,removeTask,completeTask,
     createCircle,viewCircles,oneCircle,deleteCircle,removeConnection,search,ISsearch,searchQuery,createEvent,
-    viewEvents,oneEvent,editEvent,deleteEvent,removeAttendee,addAttendee,BsearchQuery,addBUser,viewBusinessConnections,getTags}
+    viewEvents,oneEvent,editEvent,deleteEvent,removeAttendee,addAttendee,BsearchQuery,addBUser,viewBusinessConnections,getTags,addConnection}

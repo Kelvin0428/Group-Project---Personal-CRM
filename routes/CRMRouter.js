@@ -32,6 +32,7 @@ CRMRouter.get('/circle/:id',passport.authenticate('jwt',{session: false}),(req,r
 
 CRMRouter.get('/circle/delete/:id',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.deleteCircle(req,res))
 
+CRMRouter.post('/circle/:id/addConnection',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.addConnection(req,res))
 CRMRouter.post('/circle/:id/removeConnection',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.removeConnection(req,res))
 
 CRMRouter.post('/search', passport.authenticate('jwt',{session:false}),expressValidator.body('tag').isAlpha().optional({checkFalsy: true}),(req,res)=>CRMController.search(req,res))
