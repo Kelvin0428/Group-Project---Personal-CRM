@@ -545,14 +545,28 @@ const addConnection = async (req,res) =>{
     try{
         let user = await PersonalUser.findOne({userName: req.user.userName})
         let people = user.circles.find(circle => circle._id == req.params.id).people
+        let add = true;
         for(let i =0;i<user.connections.cnis.length; i++){
             if(user.connections.cnis[i].id == req.body.id){
-                people.cnis.push(user.connections.cnis[i]);
-                break;
+                for(let j=0; j<people.cnis.length; j++){
+                    if(people.cnis[j].id == req.body.id){
+                        add = false;
+                        break;
+                    }
+                }
+                if(add){
+                    people.cnis.push(user.connections.cnis[i]);
+                    break;
+                }
             }
         }
         await user.save();
-        res.send("user added");
+        if(add){
+            res.send("user added");
+        }else{
+            res.send("user already in circle")
+        }
+        
        
     }catch(err){
         console.log(err)
@@ -805,17 +819,30 @@ const addAttendee = async(req,res) =>{
     try{
         const event = await Event.findOne({_id:req.params._id})
         const user = await PersonalUser.findOne({userName:req.user.userName})
+        let add = true;
         for(let people of user.connections.cnis){
             if(people.id == req.body.id){
-                event.attendee.cnis.push(people)
+                for(let j=0;j<event.attendee.cnis.length; j++){
+                    if(event.attendee.cnis[j].id == req.body.id){
+                        add = false;
+                        break;
+                    }
+                }
+                if(add){
+                    event.attendee.cnis.push(people);
+                    const unis = await Usernis.findOne({_id:req.body.id})
+                    unis.events.push(event._id)
+                    await unis.save()
+                    break;
+                }
             }
         }
-        const unis = await Usernis.findOne({_id:req.body.id})
-        unis.events.push(event._id)
-        
         await event.save()
-        await unis.save()
-        res.json("add successful")
+        if(add){
+            res.json("add successful")
+        }else{
+            res.json('user already in event')
+        }
     }catch(err){
         console.log(err)
     }
