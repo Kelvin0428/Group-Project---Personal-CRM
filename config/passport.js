@@ -149,6 +149,7 @@ module.exports = function(passport) {
                     newUser.name = req.body.name;
                     newUser.description = req.body.description;
                     newUser.password = newUser.hashPassword(password);
+                    
                     newUser.save(function(err) {
                         if (err)
                             throw err;
@@ -211,7 +212,7 @@ module.exports = function(passport) {
                         newUser.completedTask = newCTask;
                         newUser.password = newUser.hashPassword(password);
                         newUser.email = req.body.email;
-   
+                        newUser.tagList = [];
                         //set initial account activate to false
                         newUser.active = false;
                         //randomise the secretid

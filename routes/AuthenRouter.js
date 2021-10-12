@@ -22,7 +22,6 @@ AuthenRouter.post('/login', async (req, res, next) => {
             if(errors || !Personaluser){
                 return res.status(200).send(message)
             }
-            console.log(Personaluser);
             //login to the user
             req.login(Personaluser, { session : false }, async (error) => {
                 if(error){
@@ -94,6 +93,7 @@ AuthenRouter.post('/sendForget', (req,res)=>AuthenController.sendForget(req,res)
 
 AuthenRouter.post('/forgetPassword/:id', (req,res) => AuthenController.forgetPassword(req,res));
 
+AuthenRouter.get('/deleteAccount',passport.authenticate('jw'))
 AuthenRouter.post('/resetPassword',passport.authenticate('jwt',{session: false}), (req,res)=> AuthenController.resetPassword(req,res));
 //handling login requests
 AuthenRouter.post('/signup', async (req, res, next) => {
@@ -118,13 +118,13 @@ AuthenRouter.post('/signup', async (req, res, next) => {
                 to: Personaluser.email,
                 subject: 'Account Verification',
                 //url here needs to be changed to front ends
-                html: "<h1>Welcome to Polar Circle</h1><h2>Please proceed with the below link to activate your account</h2> <a href='http://localhost:3000/activate/"+ Personaluser.secretID + "'>Activate</a> "
+                html: "<header style ='background-color:AliceBlue;'><h1 style='background-color:DeepSkyBlue; color:white'>Welcome to Polar Circle</h1><h2>Hi " + Personaluser.personalInfo.nameGiven + "</h2> <br><br><h3>Thank you for regestering a PolarCRM account. Please proceed with <a href='http://localhost:3000/activate/"+ Personaluser.secretID + "'> this link </a>to activate your account </h3><br><br> <small>This email address is not being monitored. Please do not reply to this email</small></header>"
             }
 
             //send the mail
             transporter.sendMail(mailDetails, function(error, info){
                 if(error){
-                    console.log(error);
+                    return res.status(200).send(message)
                 }else{
                     console.log('Email sent:' + info.response)
                 }

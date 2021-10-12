@@ -23,7 +23,7 @@ const friendSchema = new mongoose.Schema({
     timeGoal:{type:Number,default:2},
     timeType:{type:String,enum:['week','month'],default:"week"},
     numGoal:{type:Number,default:1},
-    connectionScore:{type:Number},
+    connectionScore:{type:Number, default:0},
     accountType: {type:String, enum:['inSystem','notInSystem','business'],required:true}
 })
 
@@ -41,19 +41,22 @@ connectionSchema = new mongoose.Schema({
 //schema for storing tasks
 const taskSchema = new mongoose.Schema({
     _id:{type:mongoose.Types.ObjectId,auto:true},
-    connectionID:{type:mongoose.Types.ObjectId},
     //what is the task name
     taskName: {type: String, required:true},
     connectionID: mongoose.Types.ObjectId,
     description:{type:String},
     createdDate: {type: Date, required: true,default:Date.now},
-    endDate: {type: Date},
-    status: {type: String, enum:['incomplete','failed','completed']}
+    dueDate: {type:Date,require:true},
+    isNotified :{type:Boolean,default:false},
+    wantNotified:{type:Boolean},
+    status: {type: String, enum:['failed','incomplete','completed']},
+    highlight:{type:Boolean, default:false}
 })
+
 
 //schema for events, including who hosted the event, who are the attendees
 const eventSchema = new mongoose.Schema({
-    eventDate: {type: String, required:true},
+    eventDate: {type: Date, required:true},
     description:{type:String},
     eventName:{type:String},
     eventAddress:{type:String},
@@ -67,7 +70,8 @@ const circleSchema = new mongoose.Schema({
     tag: String,
     people: connectionSchema,
     description: {type:String},
-    name:{type:String, required:true, default:"Circle"}
+    name:{type:String, required:true, default:"Circle"},
+    connectionScore:{type:Number,default:0}
 })
 
 
@@ -85,8 +89,9 @@ const personalUserSchema = new mongoose.Schema({
     completedTask:[completedTaskSchema],
     connections: connectionSchema,
     tasks: [{type: taskSchema, default:null}],
-    events: [{ type: Schema.Types.ObjectId, ref: 'Event' }],
+    events: [{ type: Schema.Types.ObjectId, ref: 'Event' ,default:[]}],
     circles: [{type: circleSchema, default:null}],
+    tagList: [{type:String}],
     //active to decide if the account is verified and active
     active: {type: Boolean},
     //used to check if email verified is correct
@@ -109,6 +114,7 @@ const usernisSchema = new mongoose.Schema({
     fullName:{type:String,required:true},
     personalInfo: infoSchema,
     events: [{ type: Schema.Types.ObjectId, ref: 'Event' }],
+    circles: [{ type: Schema.Types.ObjectId, ref: 'Circle' }]
 })
 
 
@@ -129,7 +135,6 @@ businessUserSchema.methods.hashPassword = function(password) {
 businessUserSchema.methods.validPassword = function(password) {
     return bcrypt.compareSync(password, this.password);
 };
-
 
 
 // compile the Schemas into Models
