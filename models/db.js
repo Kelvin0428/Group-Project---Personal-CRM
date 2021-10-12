@@ -70,7 +70,8 @@ const circleSchema = new mongoose.Schema({
     tag: String,
     people: connectionSchema,
     description: {type:String},
-    name:{type:String, required:true, default:"Circle"}
+    name:{type:String, required:true, default:"Circle"},
+    connectionScore:{type:Number,default:0}
 })
 
 

@@ -473,9 +473,23 @@ const createCircle = async (req,res)=>{
 
 const viewCircles = async (req,res) =>{
     try{
-        let circles =  (await PersonalUser.findOne({userName:req.user.userName}).lean()).circles
-        console.log(circles)
-        res.json(circles)
+        let user =  await PersonalUser.findOne({userName:req.user.userName})
+        for(let i=0;i<user.circles.length;i++){
+            let total = 0;
+            let num = 0;
+            for(let j=0;j<user.circles[i].people.cnis.length;j++){
+                total += user.circles[i].people.cnis[j].connectionScore;
+                num += 1;
+            }
+            let out = Math.ceil(total / num);
+            if(num == 0){
+                user.circles[i].connectionScore = 0;
+            }else{
+                user.circles[i].connectionScore = out;
+            }
+            await user.save()
+        }
+        res.json(user.circles)
 
     }catch(err){
         console.log(err)
@@ -624,8 +638,6 @@ const searchQuery = async (req,res)=>{
             for(let j=0;j<current.events.length;j++){
                 let event = await Event.findOne({_id: current.events[j]});
                 for(let k=0;k<event.attendee.cnis.length;k++){
-                    console.log("-----------")
-                    console.log(event);
                     if (event.eventDate > calcDate && event.attendee.cnis[k].id.equals(friendo.id)){
                         total += 1;
                         break;
@@ -634,6 +646,17 @@ const searchQuery = async (req,res)=>{
             }
             friendo.connectionScore = total* 100 / friendo.numGoal;
             current.connections.cnis[i].connectionScore = friendo.connectionScore;
+            
+            for(let j=0;j<current.circles.length;j++){
+                for(let k=0; k<current.circles[j].people.cnis.length;k++){
+                    console.log(current.circles[j].people.cnis[k].id);
+                    console.log(friendo.id);
+                    if ((current.circles[j].people.cnis[k].id).equals(friendo.id)){
+                        current.circles[j].people.cnis[k].connectionScore = friendo.connectionScore;
+                        break;
+                    } 
+                }
+            }
             await current.save();
         }
 
