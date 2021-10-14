@@ -62,7 +62,7 @@ const eventSchema = new mongoose.Schema({
     eventAddress:{type:String},
     host:{type:String},
     hostId: mongoose.Types.ObjectId,
-    attendee: connectionSchema
+    attendee: connectionSchema,
     isNotified:{type:Boolean, default:false}
 })
 
