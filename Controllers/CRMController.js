@@ -114,6 +114,23 @@ const connectionProfile = async (req,res)=>{
     }
 }
 
+const addTag = async (req,res)=>{
+    try{
+        const user = await PersonalUser.findOne({userName:req.user.userName})
+        for(var people of user.connections.cnis){
+            if(people.id == req.params._id){
+                people.tags.push(req.body.tag)
+                user.tagList.push(req.body.tag)
+            }
+
+        }
+        await user.save
+        res.json("add tag successful")
+    }catch(err){
+        console.log(err)
+    }
+}
+
 const deleteConnection = async (req,res)=>{
     try{
         const user = await PersonalUser.findOne({userName:req.user.userName})
@@ -889,4 +906,4 @@ const getTags = async(req,res) => {
 module.exports = {getPersonInfo,editPersonalInfo,
     viewConnections,connectionProfile,deleteConnection,editConnectionProfile,createUsernis,getIdentity,viewTask,createTask,oneTask,editTask,removeTask,completeTask,
     createCircle,viewCircles,oneCircle,deleteCircle,removeConnection,search,ISsearch,searchQuery,createEvent,
-    viewEvents,oneEvent,editEvent,deleteEvent,removeAttendee,addAttendee,BsearchQuery,addBUser,viewBusinessConnections,getTags,addConnection,calcConnection}
+    viewEvents,oneEvent,editEvent,deleteEvent,removeAttendee,addAttendee,BsearchQuery,addBUser,viewBusinessConnections,getTags,addConnection,calcConnection,addTag}

@@ -13,6 +13,7 @@ CRMRouter.get('/BusinessConnections',passport.authenticate('jwt',{session: false
 CRMRouter.get('/connection/:_id',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.connectionProfile(req,res))
 CRMRouter.post('/connection/edit/:_id',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.editConnectionProfile(req,res))
 CRMRouter.get('/connection/remove/:_id',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.deleteConnection(req,res))
+CRMRouter.post('/connection/addTag/:_id',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.addTag(req,res))
 
 
 CRMRouter.post('/createUser',passport.authenticate('jwt',{session: false}),(req,res)=> CRMController.createUsernis(req,res))
