@@ -51,10 +51,13 @@ app.all('*', (req, res) => {res.send('Invalid Route')})
 var nodemailer = require('nodemailer');
 const mongoose = require('mongoose')
 const PersonalUser = mongoose.model('PersonalUser')
-const cron = require('node-cron');
+const cron = require('cron').CronJob;
 const Event = mongoose.model('Event')
+
+
+
 //the following code executes at 00:00 per day
-cron.schedule('* * * * *', async function(){
+async function callfunc(){
   const users = await PersonalUser.find();
   //for all users, check their respective tasks, and send email if guards are met
   for(let i=0;i<users.length;i++){
@@ -154,11 +157,6 @@ cron.schedule('* * * * *', async function(){
             users[i].tasks[j].highlight = true;
             await users[i].save();
 
-          }else{
-            // do not send the email as the time is not reached yet
-            console.log('not yet');
-            console.log(notifyDate)
-            console.log(currentTime);
           }
         //if the difference in days is less than the guard, then we aren't able to send notification emails
         }else{
@@ -167,8 +165,17 @@ cron.schedule('* * * * *', async function(){
       }
     }
   }
-})
+}
 
+  const Notify = new cron(
+    '* * * * *', 
+    callfunc, 
+    null, 
+    false, 
+    'America/Los_Angeles',
+  );
+  
+Notify.start() 
 
 // listening on Port address if active, or else on local host 8000
 //the guard is to prevent listen EADDRINUSE: address already in use :: 8000 issue
