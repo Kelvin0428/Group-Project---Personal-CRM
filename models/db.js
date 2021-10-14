@@ -63,6 +63,7 @@ const eventSchema = new mongoose.Schema({
     host:{type:String},
     hostId: mongoose.Types.ObjectId,
     attendee: connectionSchema
+    isNotified:{type:Boolean, default:false}
 })
 
 //schema for grouping connections based on tags
