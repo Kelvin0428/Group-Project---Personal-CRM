@@ -197,6 +197,21 @@ const deleteConnection = async (req,res)=>{
     }
 }
 
+const deleteBusinessConnection = async(req,res) =>{
+    try{
+        const user = await PersonalUser.findOne({userName:req.user.userName})
+        for(var people of user.connections.bc){
+            if(people.id == req.params._id){
+                user.connections.bc.pull(people)
+            }
+        }
+        await user.save();
+        res.json("remove business connection successful")
+    }catch(err){
+        console.log(err)
+    }
+}
+
 
 const editConnectionProfile = async (req,res) =>{
     try{
@@ -929,4 +944,4 @@ const getTags = async(req,res) => {
 module.exports = {getPersonInfo,editPersonalInfo,
     viewConnections,connectionProfile,deleteConnection,editConnectionProfile,createUsernis,getIdentity,viewTask,createTask,oneTask,editTask,removeTask,completeTask,
     createCircle,viewCircles,oneCircle,deleteCircle,removeConnection,search,ISsearch,searchQuery,createEvent,
-    viewEvents,oneEvent,editEvent,deleteEvent,removeAttendee,addAttendee,BsearchQuery,addBUser,viewBusinessConnections,getTags,addConnection,calcConnection,addTag,BusinessConnectionProfile}
+    viewEvents,oneEvent,editEvent,deleteEvent,removeAttendee,addAttendee,BsearchQuery,addBUser,viewBusinessConnections,getTags,addConnection,calcConnection,addTag,BusinessConnectionProfile,deleteBusinessConnection}
