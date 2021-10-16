@@ -44,6 +44,7 @@ const taskSchema = new mongoose.Schema({
     //what is the task name
     taskName: {type: String, required:true},
     connectionID: mongoose.Types.ObjectId,
+    connectionName:{type:String},
     description:{type:String},
     createdDate: {type: Date, required: true,default:Date.now},
     dueDate: {type:Date,require:true},

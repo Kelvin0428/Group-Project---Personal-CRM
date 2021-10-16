@@ -421,8 +421,9 @@ const oneTask = async (req,res)=>{
     try{
         let user = await PersonalUser.findOne({userName:req.user.userName}) 
         let task = user.tasks.find(({_id}) => _id == req.params._id)
+        let unis = await Usernis.findOne({_id:task.connectionID})
+        task.connectionName = unis.fullName;
         res.json(task)
-        console.log(task)
     }catch(err){
         console.log(err)
 
