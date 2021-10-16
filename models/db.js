@@ -113,6 +113,7 @@ const usernisSchema = new mongoose.Schema({
     _id:{type:mongoose.Types.ObjectId,auto:true},
     fullName:{type:String,required:true},
     personalInfo: infoSchema,
+    email:{type:String},
     events: [{ type: Schema.Types.ObjectId, ref: 'Event' }],
     circles: [{ type: Schema.Types.ObjectId, ref: 'Circle' }]
 })
