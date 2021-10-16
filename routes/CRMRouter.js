@@ -10,6 +10,8 @@ CRMRouter.get('/Pinfo',passport.authenticate('jwt',{session: false}), (req,res) 
 CRMRouter.post('/updateInfo',passport.authenticate('jwt',{session: false}),(req,res) =>CRMController.editPersonalInfo(req,res))
 CRMRouter.get('/connections',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.viewConnections(req,res))
 CRMRouter.get('/BusinessConnections',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.viewBusinessConnections(req,res))
+CRMRouter.get('/BusinessConnection/:_id',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.BusinessConnectionProfile(req,res))
+
 CRMRouter.get('/connection/:_id',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.connectionProfile(req,res))
 CRMRouter.post('/connection/edit/:_id',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.editConnectionProfile(req,res))
 CRMRouter.get('/connection/remove/:_id',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.deleteConnection(req,res))

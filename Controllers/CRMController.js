@@ -114,6 +114,19 @@ const connectionProfile = async (req,res)=>{
     }
 }
 
+const BusinessConnectionProfile = async (req,res) =>{
+    try{
+        const buser = await BusinessUser.findOne({_id:req.params._id})
+        if(buser){
+            res.json(buser)
+        }else{
+            res.json("can't find business user")
+        }
+    }catch(err){
+        console.log(err)
+    }
+}
+
 const addTag = async (req,res)=>{
     try{
         const user = await PersonalUser.findOne({userName:req.user.userName})
@@ -906,4 +919,4 @@ const getTags = async(req,res) => {
 module.exports = {getPersonInfo,editPersonalInfo,
     viewConnections,connectionProfile,deleteConnection,editConnectionProfile,createUsernis,getIdentity,viewTask,createTask,oneTask,editTask,removeTask,completeTask,
     createCircle,viewCircles,oneCircle,deleteCircle,removeConnection,search,ISsearch,searchQuery,createEvent,
-    viewEvents,oneEvent,editEvent,deleteEvent,removeAttendee,addAttendee,BsearchQuery,addBUser,viewBusinessConnections,getTags,addConnection,calcConnection,addTag}
+    viewEvents,oneEvent,editEvent,deleteEvent,removeAttendee,addAttendee,BsearchQuery,addBUser,viewBusinessConnections,getTags,addConnection,calcConnection,addTag,BusinessConnectionProfile}
