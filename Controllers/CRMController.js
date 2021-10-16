@@ -13,6 +13,11 @@ const expressValidator = require('express-validator')
 const getPersonInfo = async (req,res) => {
     try{
         const user = await PersonalUser.findOne({userName:req.user.userName}).lean()
+        user.personalInfo.email = user.email
+        user.personalInfo.compTask= user.completedTask.length
+        user.personalInfo.event=user.events.length
+        user.personalInfo.circles=user.circles.length
+        user.personalInfo.tags=user.tagList.length
         res.json(user.personalInfo)
     }catch(err){
         console.log(err)
