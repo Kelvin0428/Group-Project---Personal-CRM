@@ -142,7 +142,7 @@ const addTag = async (req,res)=>{
             }
 
         }
-        await user.save
+        await user.save()
         res.json("add tag successful")
     }catch(err){
         console.log(err)
