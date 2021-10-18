@@ -13,6 +13,11 @@ const expressValidator = require('express-validator')
 const getPersonInfo = async (req,res) => {
     try{
         const user = await PersonalUser.findOne({userName:req.user.userName}).lean()
+        user.personalInfo.email = user.email
+        user.personalInfo.compTask= user.completedTask.length
+        user.personalInfo.event=user.events.length
+        user.personalInfo.circles=user.circles.length
+        user.personalInfo.tags=user.tagList.length
         res.json(user.personalInfo)
     }catch(err){
         console.log(err)
@@ -114,6 +119,19 @@ const connectionProfile = async (req,res)=>{
     }
 }
 
+const BusinessConnectionProfile = async (req,res) =>{
+    try{
+        const buser = await BusinessUser.findOne({_id:req.params._id})
+        if(buser){
+            res.json(buser)
+        }else{
+            res.json("can't find business user")
+        }
+    }catch(err){
+        console.log(err)
+    }
+}
+
 const addTag = async (req,res)=>{
     try{
         const user = await PersonalUser.findOne({userName:req.user.userName})
@@ -124,7 +142,7 @@ const addTag = async (req,res)=>{
             }
 
         }
-        await user.save
+        await user.save()
         res.json("add tag successful")
     }catch(err){
         console.log(err)
@@ -179,6 +197,21 @@ const deleteConnection = async (req,res)=>{
     }
 }
 
+const deleteBusinessConnection = async(req,res) =>{
+    try{
+        const user = await PersonalUser.findOne({userName:req.user.userName})
+        for(var people of user.connections.bc){
+            if(people.id == req.params._id){
+                user.connections.bc.pull(people)
+            }
+        }
+        await user.save();
+        res.json("remove business connection successful")
+    }catch(err){
+        console.log(err)
+    }
+}
+
 
 const editConnectionProfile = async (req,res) =>{
     try{
@@ -193,6 +226,7 @@ const editConnectionProfile = async (req,res) =>{
         if(req.body.description){personalInfo.description = req.body.description}
         if(req.body.phoneNo){personalInfo.phoneNo=req.body.phoneNo}
         unis.fullName = unis.personalInfo.nameGiven+" "+unis.personalInfo.nameFamily
+        unis.email = req.body.email;
         for(let friend of user.connections.cnis){
             if(friend.id == req.params._id){
                 if(req.body.timeGoal){friend.timeGoal = req.body.timeGoal}
@@ -214,7 +248,16 @@ const createUsernis = async (req,res) => {
     try{
         let usernis = await new Usernis({
             fullName:req.body.nameGiven+" "+req.body.nameFamily,
-            personalInfo:req.body
+            personalInfo: new PersonalInfo({ 
+                nameFamily: req.body.nameFamily,
+                nameGiven: req.body.nameGiven,
+                DOB: req.body.DOB,
+                gender: req.body.gender,
+                address:req.body.address, 
+                description:req.body.description,
+                phoneNo:req.body.phoneNo,
+            }),
+            email:req.body.email
         })
         let people = await new Friend({
             id:usernis._id,
@@ -393,8 +436,9 @@ const oneTask = async (req,res)=>{
     try{
         let user = await PersonalUser.findOne({userName:req.user.userName}) 
         let task = user.tasks.find(({_id}) => _id == req.params._id)
+        let unis = await Usernis.findOne({_id:task.connectionID})
+        task.connectionName = unis.fullName;
         res.json(task)
-        console.log(task)
     }catch(err){
         console.log(err)
 
@@ -660,7 +704,6 @@ const calcConnection = async (req,res)=>{
         let completedTasks = current.completedTask;
         for(let i=0;i<current.connections.cnis.length;i++){
             friendo = current.connections.cnis[i]
-            console.log(friendo)
             let total = 0;
             let calcDate = new Date();
             let swi = 7;
@@ -670,9 +713,6 @@ const calcConnection = async (req,res)=>{
             calcDate.setDate(calcDate.getDate() - friendo.timeGoal * swi);
             for(let j=0; j<completedTasks.length; j++){
                 if(completedTasks[j].relatedConnection != null && completedTasks[j].relatedConnection.equals(friendo.id)){
-
-                    console.log(calcDate);
-                    console.log(completedTasks[j].timeStamp);
                     if(completedTasks[j].timeStamp > calcDate){
                         total += 1;
                     }
@@ -692,8 +732,6 @@ const calcConnection = async (req,res)=>{
             
             for(let j=0;j<current.circles.length;j++){
                 for(let k=0; k<current.circles[j].people.cnis.length;k++){
-                    console.log(current.circles[j].people.cnis[k].id);
-                    console.log(friendo.id);
                     if ((current.circles[j].people.cnis[k].id).equals(friendo.id)){
                         current.circles[j].people.cnis[k].connectionScore = friendo.connectionScore;
                         break;
@@ -906,4 +944,4 @@ const getTags = async(req,res) => {
 module.exports = {getPersonInfo,editPersonalInfo,
     viewConnections,connectionProfile,deleteConnection,editConnectionProfile,createUsernis,getIdentity,viewTask,createTask,oneTask,editTask,removeTask,completeTask,
     createCircle,viewCircles,oneCircle,deleteCircle,removeConnection,search,ISsearch,searchQuery,createEvent,
-    viewEvents,oneEvent,editEvent,deleteEvent,removeAttendee,addAttendee,BsearchQuery,addBUser,viewBusinessConnections,getTags,addConnection,calcConnection,addTag}
+    viewEvents,oneEvent,editEvent,deleteEvent,removeAttendee,addAttendee,BsearchQuery,addBUser,viewBusinessConnections,getTags,addConnection,calcConnection,addTag,BusinessConnectionProfile,deleteBusinessConnection}
