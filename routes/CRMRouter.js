@@ -19,7 +19,6 @@ CRMRouter.post('/connection/edit/:_id',passport.authenticate('jwt',{session: fal
 CRMRouter.get('/connection/remove/:_id',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.deleteConnection(req,res))
 CRMRouter.post('/connection/addTag/:_id',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.addTag(req,res))
 
-
 CRMRouter.post('/createUser',passport.authenticate('jwt',{session: false}),(req,res)=> CRMController.createUsernis(req,res))
 CRMRouter.post('/addBUser',passport.authenticate('jwt',{session: false}),(req,res)=> CRMController.addBUser(req,res))
 CRMRouter.get('/userName',passport.authenticate('jwt',{session: false}),(req,res)=> CRMController.getIdentity(req,res))
