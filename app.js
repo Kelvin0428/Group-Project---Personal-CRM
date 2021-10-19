@@ -166,7 +166,7 @@ async function callfunc(){
 }
 
   const Notify = new cron(
-    '10 3 * * *', 
+    '* * * * *', 
     callfunc, 
     null, 
     false, 
