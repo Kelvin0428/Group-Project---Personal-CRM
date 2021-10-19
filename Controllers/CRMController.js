@@ -770,7 +770,8 @@ const createEvent = async (req,res) =>{
             eventAddress: req.body.eventAddress,
             host: user.personalInfo.nameGiven+" "+user.personalInfo.nameFamily,
             hostId:user._id,
-            attendee: new Connection()
+            attendee: new Connection(),
+            isNotified:false
         })
 
         if(req.body.attendee){

@@ -6,7 +6,7 @@ const expressValidator = require('express-validator')
 const CRMController = require('../Controllers/CRMController.js')
 
 const CRMRouter = express.Router()
-CRMRouter.get('/', (req,res) => res.send('Integration234'))
+CRMRouter.get('/', (req,res) => res.send('Working'))
 CRMRouter.get('/Pinfo',passport.authenticate('jwt',{session: false}), (req,res) =>CRMController.getPersonInfo(req,res))
 CRMRouter.post('/updateInfo',passport.authenticate('jwt',{session: false}),(req,res) =>CRMController.editPersonalInfo(req,res))
 CRMRouter.get('/connections',passport.authenticate('jwt',{session: false}),(req,res)=>CRMController.viewConnections(req,res))

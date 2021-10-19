@@ -75,7 +75,7 @@ async function callfunc(){
     for(let j=0;j<events.length;j++){
       let eve = await Event.findOne({_id:events[j]})
       var currentTime = new Date();
-      if(eve.eventDate.getFullYear() == currentTime.getFullYear() && eve.eventDate.getMonth() == currentTime.getMonth() && eve.eventDate.getDate() - 1 == currentTime.getDate()){
+      if(eve.isNotified == false && eve.eventDate.getFullYear() == currentTime.getFullYear() && eve.eventDate.getMonth() == currentTime.getMonth() && eve.eventDate.getDate() - 1 == currentTime.getDate()){
 
         //set up mail details, the recipient and content
         console.log(eve.eventName)
@@ -96,6 +96,8 @@ async function callfunc(){
           }
         })
         console.log("A");
+        eve.isNotified = true;
+        await eve.save();
       }
     }
     for(let j=0;j<tasks.length;j++){
@@ -160,7 +162,7 @@ async function callfunc(){
 }
 
   const Notify = new CronJob(
-    '58 4 * * *', 
+    '* * * * *', 
     callfunc, 
     null, 
     false, 
