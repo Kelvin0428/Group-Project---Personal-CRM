@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node app.js",
-    "test": "jest --forceExit --silent"
+    "test": "jest --forceExit --silent --detectOpenHandles"
   },
   "repository": {
     "type": "git",

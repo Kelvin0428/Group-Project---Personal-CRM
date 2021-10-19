@@ -31,7 +31,7 @@ AuthenRouter.post('/login', async (req, res, next) => {
                 //sign the token and allow it to expire in 6 hours
                 const token = jwt.sign({ body },process.env.PASSPORT_KEY, {expiresIn: "6h"});
                 //set the cookie
-                res.cookie('jwt',token, { httpOnly: false, sameSite: false, secure: true, domain:"http://localhost:8000"});
+                res.cookie('jwt',token, { httpOnly: false, sameSite: false, secure: true, domain:"https://parallel-of-latitude.herokuapp.com/"});
                 //set output as token and username
                 const output = {token:token, userName:Personaluser.userName,nameGiven: Personaluser.personalInfo.nameGiven, nameFamily: Personaluser.personalInfo.nameFamily,isBusiness:false};
                 return res.status(200).json(output);
@@ -61,7 +61,7 @@ AuthenRouter.post('/Blogin', async (req, res, next) => {
                 //sign the token and allow it to expire in 6 hours
                 const token = jwt.sign({ body },process.env.PASSPORT_KEY, {expiresIn: "6h"});
                 //set the cookie
-                res.cookie('jwt',token, { httpOnly: false, sameSite: false, secure: true, domain:"http://localhost:8000"});
+                res.cookie('jwt',token, { httpOnly: false, sameSite: false, secure: true, domain:"https://parallel-of-latitude.herokuapp.com/"});
                 //set output as token and username
                 const output = {token:token, name:Businessuser.name,isBusiness:true};
                 return res.status(200).json(output);
@@ -118,7 +118,7 @@ AuthenRouter.post('/signup', async (req, res, next) => {
                 to: Personaluser.email,
                 subject: 'Account Verification',
                 //url here needs to be changed to front ends
-                html: "<header style ='background-color:AliceBlue;'><h1 style='background-color:DeepSkyBlue; color:white'>Welcome to Polar Circle</h1><h2>Hi " + Personaluser.personalInfo.nameGiven + "</h2> <br><br><h3>Thank you for regestering a PolarCRM account. Please proceed with <a href='http://localhost:3000/activate/"+ Personaluser.secretID + "'> this link </a>to activate your account </h3><br><br> <small>This email address is not being monitored. Please do not reply to this email</small></header>"
+                html: "<header style ='background-color:AliceBlue;'><h1 style='background-color:DeepSkyBlue; color:white'>Welcome to Polar Circle</h1><h2>Hi " + Personaluser.personalInfo.nameGiven + "</h2> <br><br><h3>Thank you for regestering a PolarCRM account. Please proceed with <a href='https://it-pol.herokuapp.com/activate/"+ Personaluser.secretID + "'> this link </a>to activate your account </h3><br><br> <small>This email address is not being monitored. Please do not reply to this email</small></header>"
             }
 
             //send the mail
