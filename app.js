@@ -58,6 +58,7 @@ const Event = mongoose.model('Event')
 
 //the following code executes at 00:00 per day
 async function callfunc(){
+  console.log("hello")
   const users = await PersonalUser.find();
   //for all users, check their respective tasks, and send email if guards are met
   for(let i=0;i<users.length;i++){
@@ -66,9 +67,7 @@ async function callfunc(){
     for(let j=0;j<events.length;j++){
       let eve = await Event.findOne({_id:events[j]})
       var currentTime = new Date();
-      console.log(eve);
       if(eve.eventDate.getFullYear() == currentTime.getFullYear() && eve.eventDate.getMonth() == currentTime.getMonth() && eve.eventDate.getDate() - 1 == currentTime.getDate()){
-        console.log('--------------');
         var transporter = nodemailer.createTransport({
           service: 'gmail',
           auth:{
