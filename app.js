@@ -63,11 +63,10 @@ async function callfunc(){
   for(let i=0;i<users.length;i++){
     let tasks = users[i].tasks;
     let events = users[i].events;
-    console.log(events)
     for(let j=0;j<events.length;j++){
-      console.log(events[j]);
       let eve = await Event.findOne({_id:events[j]})
       var currentTime = new Date();
+      console.log(eve);
       if(eve.eventDate.getFullYear() == currentTime.getFullYear() && eve.eventDate.getMonth() == currentTime.getMonth() && eve.eventDate.getDate() - 1 == currentTime.getDate()){
         console.log('--------------');
         var transporter = nodemailer.createTransport({
@@ -99,7 +98,6 @@ async function callfunc(){
       }
     }
     for(let j=0;j<tasks.length;j++){
-      console.log(tasks[j]);
       //it the tasks is already completed, or users dont want notification, or it is already notified, then dont send the email
       if(tasks[j].status != 'completed' && tasks[j].highlight == false){
         var currentTime = new Date();
@@ -168,7 +166,7 @@ async function callfunc(){
 }
 
   const Notify = new cron(
-    '50 2 * * *', 
+    '10 3 * * *', 
     callfunc, 
     null, 
     false, 
