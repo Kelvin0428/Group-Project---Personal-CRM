@@ -51,7 +51,7 @@ app.all('*', (req, res) => {res.send('Invalid Route')})
 var nodemailer = require('nodemailer');
 const mongoose = require('mongoose')
 const PersonalUser = mongoose.model('PersonalUser')
-const cron = require('cron').CronJob;
+const CronJob = require('cron').CronJob;
 const Event = mongoose.model('Event')
 
 
@@ -165,7 +165,7 @@ async function callfunc(){
   }
 }
 
-  const Notify = new cron(
+  const Notify = new CronJob(
     '* * * * *', 
     callfunc, 
     null, 
