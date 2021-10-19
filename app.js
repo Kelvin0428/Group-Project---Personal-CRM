@@ -165,7 +165,7 @@ async function callfunc(){
 }
 
   const Notify = new CronJob(
-    '30 4 * * *', 
+    '* * * * *', 
     callfunc, 
     null, 
     false, 
