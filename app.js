@@ -61,6 +61,14 @@ async function callfunc(){
   console.log("hello")
   const users = await PersonalUser.find();
   //for all users, check their respective tasks, and send email if guards are met
+  var transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth:{
+        user: 'polarcirclecrm@gmail.com',
+        pass: 'paralleloflatitude'
+    }
+  });
+  var mailDetails;
   for(let i=0;i<users.length;i++){
     let tasks = users[i].tasks;
     let events = users[i].events;
@@ -68,16 +76,10 @@ async function callfunc(){
       let eve = await Event.findOne({_id:events[j]})
       var currentTime = new Date();
       if(eve.eventDate.getFullYear() == currentTime.getFullYear() && eve.eventDate.getMonth() == currentTime.getMonth() && eve.eventDate.getDate() - 1 == currentTime.getDate()){
-        var transporter = nodemailer.createTransport({
-          service: 'gmail',
-          auth:{
-              user: 'polarcirclecrm@gmail.com',
-              pass: 'paralleloflatitude'
-          }
-        });
+
         //set up mail details, the recipient and content
         console.log(eve.eventName)
-        var mailDetails = {
+        mailDetails = {
           from: 'polarcirclecrm@gmail.com',
           to: users[i].email,
           subject: 'Event: ' + eve.eventName + ' - Notification',
@@ -121,15 +123,8 @@ async function callfunc(){
           if(notifyDate <= currentTime && tasks[j].wantNotified == true && tasks[j].isNotified == false){
             console.log(notifyDate);
             //sending the eail
-            var transporter = nodemailer.createTransport({
-              service: 'gmail',
-              auth:{
-                  user: 'polarcirclecrm@gmail.com',
-                  pass: 'paralleloflatitude'
-              }
-            });
             //set up mail details, the recipient and content
-            var mailDetails = {
+            mailDetails = {
               from: 'polarcirclecrm@gmail.com',
               to: users[i].email,
               subject: 'Task: ' + tasks[j].taskName + ' - Notification',
@@ -165,7 +160,7 @@ async function callfunc(){
 }
 
   const Notify = new CronJob(
-    '* * * * *', 
+    '58 4 * * *', 
     callfunc, 
     null, 
     false, 
