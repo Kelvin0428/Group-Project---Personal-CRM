@@ -1,8 +1,8 @@
-//code inspiration drawn from applications developed and adapted from workshop programs from Web information Technologies 2021 sem 1
+//--code inspiration drawn from applications developed and adapted from workshop programs from Web information Technologies 2021 sem 1--
 // require mongodb connectiong
 require('./models/index.js')
 
-// requiring nevessary modules
+// requiring necessary modules
 const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
@@ -45,7 +45,7 @@ app.use('/authenticate',AuthenRouter)
 app.use('/business',BusinessRouter);
 
 app.all('*', (req, res) => {res.send('Invalid Route')})
-
+//--------------------------------------------------------//
 
 
 var nodemailer = require('nodemailer');
@@ -58,7 +58,6 @@ const Event = mongoose.model('Event')
 
 //the following code executes at 00:00 per day
 async function callfunc(){
-  console.log("hello")
   const users = await PersonalUser.find();
   //for all users, check their respective tasks, and send email if guards are met
   var transporter = nodemailer.createTransport({
@@ -86,7 +85,6 @@ async function callfunc(){
           //includes days left till dead line in email
           html: "<header style ='background-color:AliceBlue;'><h1 style='background-color:DeepSkyBlue; color:white'>Polar Circle</h1><h2>Hi " + users[i].personalInfo.nameGiven + "</h2> <br><br><h3>This is a reminder that you have " + eve.eventName + " tomorrow</h3><br><br> <small>This email address is not being monitored. Please do not reply to this email</small></header>"
         }
-        console.log('b');
         //send the mail
         transporter.sendMail(mailDetails, function(error, info){
           if(error){
@@ -95,7 +93,6 @@ async function callfunc(){
               console.log('Email sent:' + info.response)
           }
         })
-        console.log("A");
         eve.isNotified = true;
         await eve.save();
       }
@@ -162,7 +159,7 @@ async function callfunc(){
 }
 
   const Notify = new CronJob(
-    '* * * * *', 
+    '*/10 * * * *', 
     callfunc, 
     null, 
     false, 
