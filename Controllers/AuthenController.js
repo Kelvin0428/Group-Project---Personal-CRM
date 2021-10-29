@@ -6,7 +6,6 @@ var crypto = require("crypto");
 const activateAccount = async (req,res) => {
     try{
         const user = await PersonalUser.findOneAndUpdate({secretID:req.params.id}, {active: true, secretID: null})
-        
         res.send(user);
     }catch(err){
         console.log(err)

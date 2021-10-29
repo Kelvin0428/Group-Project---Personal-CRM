@@ -134,7 +134,6 @@ module.exports = function(passport) {
             //find if the signup username exists in system, if it doesn't, allow checks for email
             await BusinessUser.findOne({'email': email}, function(err, existingUser) {
                 if (err) {
-                    console.log(err);
                     return done(err,null,{message:'unexpected issue  with Database Query'});
                 }
                 if (existingUser) {
@@ -157,7 +156,6 @@ module.exports = function(passport) {
                 });
                 }
             });
-            console.log(req.body.email);
 
         }catch (error) {
             return done(error);
@@ -185,16 +183,13 @@ module.exports = function(passport) {
                     allow = 1;
                 }
             });
-            console.log(req.body.email);
             //checking if email is unique
             if(allow == 1){
                 await PersonalUser.findOne({'email':req.body.email},function(err,existingUser){
                     if(err){
-                        console.log(err);
                         return done(err);
                     }
                     if(existingUser){
-                        console.log("existing");
                         return done(null,false,{message: 'That email is taken.'})
                     }
                     else{

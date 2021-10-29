@@ -76,8 +76,7 @@ async function callfunc(){
       var currentTime = new Date();
       if(eve.isNotified == false && eve.eventDate.getFullYear() == currentTime.getFullYear() && eve.eventDate.getMonth() == currentTime.getMonth() && eve.eventDate.getDate() - 1 == currentTime.getDate()){
 
-        //set up mail details, the recipient and content
-        console.log(eve.eventName)
+        //set up mail details, the recipient and content)
         mailDetails = {
           from: 'polarcirclecrm@gmail.com',
           to: users[i].email,
@@ -130,7 +129,6 @@ async function callfunc(){
               //includes days left till dead line in email
               html: "<header style ='background-color:AliceBlue;'><h1 style='background-color:DeepSkyBlue; color:white'>Polar Circle</h1><h2>Hi " + users[i].personalInfo.nameGiven + "</h2> <br><br><h3>This is a reminder that you have " + daysLeft + " days left on your task: " + tasks[j].taskName + "</h3><br><br> <small>This email address is not being monitored. Please do not reply to this email</small></header>"
             }
-            console.log('b');
             //send the mail
             transporter.sendMail(mailDetails, function(error, info){
               if(error){
@@ -157,14 +155,8 @@ async function callfunc(){
     }
   }
 }
-
-  const Notify = new CronJob(
-    '*/10 * * * *', 
-    callfunc, 
-    null, 
-    false, 
-    'America/Los_Angeles',
-  );
+//call it every 10th minute
+const Notify = new CronJob('*/10 * * * *', callfunc, null, false, 'Australia/Melbourne',);
   
 Notify.start() 
 

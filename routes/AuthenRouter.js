@@ -100,9 +100,6 @@ AuthenRouter.post('/signup', async (req, res, next) => {
     //utilises the Personallogin authentication method for personal users to log in 
     passport.authenticate('signup', async (errors, Personaluser, message) => {
         try {
-            // log information on authentication status -- 'login successful'
-            console.log(message);
-
             //set up node mailer transporter, allow for login in the sender email
             var transporter = nodemailer.createTransport({
                 service: 'gmail',
@@ -126,7 +123,7 @@ AuthenRouter.post('/signup', async (req, res, next) => {
                 if(error){
                     return res.status(200).send(message)
                 }else{
-                    console.log('Email sent:' + info.response)
+                    console.log('Email sent')
                 }
             })
             // if Personallogin authentication has error
